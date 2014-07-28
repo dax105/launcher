@@ -1,0 +1,16 @@
+*.class
+*.txt
+.classpath
+.project
+bin/
+.settings/
+screenshots/
+saves/
+saved.png
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+*.ccf
