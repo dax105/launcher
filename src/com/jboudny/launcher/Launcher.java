@@ -25,7 +25,7 @@ public class Launcher implements Runnable {
 	public static Version appVersion;
 	public static final String DIRECTORY_NAME = "oots";
 	public static final String APP_NAME = "Order of the Stone";
-	public static final String APP_VERSION_FILE_NAME = "ppversion";
+	public static final String APP_VERSION_FILE_NAME = "appversion";
 	public static final String LAUNCHER_VERSION_FILE_NAME = "lversion";
 
 	private File programFolder = new File(OSUtils.userDataFolder(DIRECTORY_NAME));
@@ -120,33 +120,21 @@ public class Launcher implements Runnable {
 				this.mainFrame.getProgressBar().setMaximum(100);
 
 				if (!updated) {
-					this.mainFrame.getProgressBar().setIndeterminate(false);
-					this.mainFrame.setProgressBarText("No updates found, starting application...");
-					this.mainFrame.getProgressBar().setValue(100);
+					this.mainFrame.setError("No updates found, starting application...");
 				} else {
-					this.mainFrame.getProgressBar().setIndeterminate(false);
-					this.mainFrame.setProgressBarText("Update done, starting application...");
-					this.mainFrame.getProgressBar().setValue(100);
+					this.mainFrame.setError("Update done, starting application...");
 				}
 
-				runApp(this.mainFrame);
-
 			} catch (Exception e) {
-				this.mainFrame.getProgressBar().setIndeterminate(false);
-				this.mainFrame.setProgressBarText("An error occured while downloading updates, starting application...");
-				this.mainFrame.getProgressBar().setValue(100);
+				this.mainFrame.setError("An error occured while downloading updates, starting application...");
 			}
 
 		} catch (Exception ex) {
-
-			this.mainFrame.getProgressBar().setIndeterminate(false);
-			this.mainFrame.setProgressBarText("An error occured while checking for updates, starting application...");
-			this.mainFrame.getProgressBar().setValue(100);
-
-			runApp(this.mainFrame);
-
+			this.mainFrame.setError("An error occured while checking for updates, starting application...");
 			ex.printStackTrace();
 		}
+		
+		runApp(this.mainFrame, "");
 	}
 
 	public void checkDirectory() {
@@ -330,7 +318,7 @@ public class Launcher implements Runnable {
 		}
 	}
 
-	public void runApp(JFrame frameToDispose) {
+	public void runApp(JFrame frameToDispose, String jarParams) {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -343,35 +331,38 @@ public class Launcher implements Runnable {
 		
 
 		try {
+			runCommand("java -jar " + new File(this.programFolder, "app.jar").getAbsolutePath() + " " + jarParams,
+					new IProcessExitCallback() {
 
-			int eval = runCommand("java -jar " + new File(this.programFolder, "app.jar").getAbsolutePath());
-			if (eval == 0) {
-				System.out.println("APPLICATION EXITED NORMALLY, EXIT CODE: 0");
-				System.exit(0);
-			} else {
-				System.out.println("APPLICATION HAS CRASHED, EXIT CODE: "
-						+ eval);
-				System.out
-						.println("PLEASE SEND THIS LOG TO THE AUTHOR TO FIX THE ISSUE!");
-			}
+						@Override
+						public void onExit(int exitCode) {
+							if (exitCode == 0) {
+								System.out.println("APPLICATION EXITED NORMALLY, EXIT CODE: 0");
+							} else {
+								System.out.println("APPLICATION HAS CRASHED, EXIT CODE: "
+										+ exitCode);
+								System.out
+										.println("PLEASE SEND THIS LOG TO THE AUTHOR TO FIX THE ISSUE!");
+							}
+						}
+				
+			});
+
 
 		} catch (IOException e) {
 			System.err.println(e);
 		}
 	}
 
-	public int runCommand(String cmd) throws IOException {
+	public void runCommand(String cmd, IProcessExitCallback onExit) throws IOException {
 		Process proc = Runtime.getRuntime().exec(cmd);			
 
-		StreamGobbler iS = new StreamGobbler(proc.getInputStream());
-		StreamGobbler eS = new StreamGobbler(proc.getErrorStream());
+		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc, onExit);
+		StreamGobbler eS = new StreamGobbler(proc.getErrorStream(), proc, null);
 		
 		iS.start();
 		eS.start();
-
-		return proc.exitValue();
 	}
-	
 
 	public static void main(String[] args) {
 		Launcher l = new Launcher();
@@ -383,9 +374,13 @@ public class Launcher implements Runnable {
 
 class StreamGobbler extends Thread {
     InputStream is;
-
-    public StreamGobbler(InputStream is) {
+    IProcessExitCallback callback;
+    Process p;
+    
+    public StreamGobbler(InputStream is, Process process, IProcessExitCallback callback) {
         this.is = is;
+        this.callback = callback;
+        this.p = process;
     }
 
     @Override
@@ -397,10 +392,18 @@ class StreamGobbler extends Thread {
             while ((line = br.readLine()) != null)
                 System.out.println(line);
             
+            p.destroy();
+            
+            if(callback != null)
+            	callback.onExit(p.exitValue());
             br.close();
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
+}
+
+interface IProcessExitCallback {
+	public void onExit(int exitCode);
 }
