@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -35,6 +36,7 @@ public class Launcher implements Runnable {
 	private Version appVersion;
 	private JProgressBar progressBar;
 	private JFrame frame;
+	private OutputPanel op;
 
 	@Override
 	public void run() {
@@ -379,7 +381,7 @@ public class Launcher implements Runnable {
 
 		frameToDispose.dispose();
 
-		OutputPanel op = new OutputPanel();
+		op = new OutputPanel();
 
 		op.setBorder(BorderFactory.createEmptyBorder());
 
@@ -388,6 +390,8 @@ public class Launcher implements Runnable {
 		frame.setSize(600, 320);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
+		
+		frame.setVisible(true);
 
 		try {
 
@@ -396,9 +400,6 @@ public class Launcher implements Runnable {
 				System.out.println("APPLICATION EXITED NORMALLY, EXIT CODE: 0");
 				System.exit(0);
 			} else {
-
-				frame.setVisible(true);
-
 				System.out.println("APPLICATION HAS CRASHED, EXIT CODE: "
 						+ eval);
 				System.out
@@ -410,22 +411,19 @@ public class Launcher implements Runnable {
 		}
 	}
 
-	public static int runCommand(String cmd) throws IOException {
-		Process proc = Runtime.getRuntime().exec(cmd);
-
+	public int runCommand(String cmd) throws IOException {
+		Process proc = Runtime.getRuntime().exec(cmd);			
 		InputStream istr = proc.getInputStream();
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(istr));
-		String str;
-
-		while ((str = br.readLine()) != null) {
-			System.out.println(str);
-		}
-
-		br.close();
+		
+		StreamGobbler iS = new StreamGobbler(proc.getInputStream());
+		StreamGobbler eS = new StreamGobbler(proc.getErrorStream());
+		
+		iS.start();
+		eS.start();
 
 		return proc.exitValue();
 	}
+	
 
 	public static void main(String[] args) {
 		Launcher l = new Launcher();
@@ -433,4 +431,28 @@ public class Launcher implements Runnable {
 		t.start();
 	}
 
+}
+
+class StreamGobbler extends Thread {
+    InputStream is;
+
+    public StreamGobbler(InputStream is) {
+        this.is = is;
+    }
+
+    @Override
+    public void run() {
+        try {
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line = null;
+            while ((line = br.readLine()) != null)
+                System.out.println(line);
+            
+            br.close();
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
 }
