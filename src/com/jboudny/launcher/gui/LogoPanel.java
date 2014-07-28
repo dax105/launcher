@@ -1,4 +1,4 @@
-package com.jboudny.launcher;
+package com.jboudny.launcher.gui;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -13,12 +13,11 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
+import com.jboudny.launcher.Launcher;
+
 public class LogoPanel extends JPanel {
-
-	public String logoText = "Order of the stone";
-
 	public String launcherVersion = "" + Launcher.version;
-	public String appVersion = "N/A";
+	public String appVersion = "" + Launcher.appVersion;
 
 	private static final long serialVersionUID = 1L;
 
@@ -31,7 +30,7 @@ public class LogoPanel extends JPanel {
 	public LogoPanel() {
 		try {
 			logoFont = Font.createFont(Font.TRUETYPE_FONT,
-					LogoPanel.class.getResourceAsStream("font.ttf"));
+					Thread.currentThread().getContextClassLoader().getResourceAsStream("com/jboudny/launcher/font.ttf"));
 		} catch (FontFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -88,12 +87,12 @@ public class LogoPanel extends JPanel {
 		float stepMult = step / (float) steps;
 		float stepMultExp = calculateExpScale(stepMult);
 
-		int x = this.getWidth() / 2 - fml.stringWidth(logoText) / 2;
+		int x = this.getWidth() / 2 - fml.stringWidth(Launcher.APP_NAME) / 2;
 		int y = (int) (this.getHeight() / 2 + fml.getHeight() / 4 - (70 * (1 - stepMultExp)));
 
 		g.setColor(new Color(0, 0, 0, stepMult));
 
-		g.drawString(logoText, x, y);
+		g.drawString(Launcher.APP_NAME, x, y);
 
 		//g.setColor(Color.BLACK);
 

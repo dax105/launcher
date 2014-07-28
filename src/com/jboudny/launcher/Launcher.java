@@ -1,7 +1,5 @@
 package com.jboudny.launcher;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,33 +8,33 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
-
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
-import javax.swing.UIManager;
-import javax.swing.plaf.basic.BasicProgressBarUI;
+
+import com.jboudny.launcher.gui.DebugFrame;
+import com.jboudny.launcher.gui.MainFrame;
 
 public class Launcher implements Runnable {
 
 	public static Version version = new Version(0, 9, 5);
-	public static final String directoryName = "oots";
-	
+	public static Version appVersion;
+	public static final String DIRECTORY_NAME = "oots";
+	public static final String APP_NAME = "Order of the Stone";
+	public static final String APP_VERSION_FILE_NAME = "ppversion";
+	public static final String LAUNCHER_VERSION_FILE_NAME = "lversion";
 
-	private File programFolder = new File(OSUtils.userDataFolder(directoryName));
+	private File programFolder = new File(OSUtils.userDataFolder(DIRECTORY_NAME));
 	private String server = "http://www.jboudny.kx.cz/";
 	private String appverurl = server + "appversion.txt";
 	private String launchverurl = server + "launcherversion.txt";
-	private Version appVersion;
-	private JProgressBar progressBar;
-	private JFrame frame;
-	private OutputPanel op;
+
+	private MainFrame mainFrame;
+	private DebugFrame debugFrame;
 
 	@Override
 	public void run() {
@@ -47,7 +45,7 @@ public class Launcher implements Runnable {
 		this.checkLauncher();
 		this.startGui();
 		
-		appVersion = getVersion(new File(programFolder, "ppversion"));
+		appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
 		
 		this.doWork();
 	}
@@ -78,16 +76,14 @@ public class Launcher implements Runnable {
 
 				if (verlaunch.isNewerThan(version)) {
 					updated = true;
-					this.progressBar
-							.setString("Downloading new version of launcher ("
-									+ verlaunch + ")...");
+					this.mainFrame.setProgressBarText("Downloading new version of launcher (" + verlaunch + ")...");
 
 					update(server + "latestlauncher.jar", new File(
 							programFolder, "launcher.jar"), verlaunch,
-							new File(programFolder, "lversion"),
-							this.progressBar, true);
+							new File(programFolder, Launcher.LAUNCHER_VERSION_FILE_NAME),
+							this.mainFrame.getProgressBar(), true);
 
-					Version li = getVersion(new File(programFolder, "lversion"));
+					Version li = getVersion(new File(programFolder, Launcher.LAUNCHER_VERSION_FILE_NAME));
 
 					if (li != null && li.isNewerThan(version)) {
 
@@ -114,45 +110,40 @@ public class Launcher implements Runnable {
 
 				if (verapp.isNewerThan(appVersion)) {
 					updated = true;
-					this.progressBar
-							.setString("Downloading new version of application ("
+					this.mainFrame.setProgressBarText("Downloading new version of application ("
 									+ verapp + ")...");
 					update(server + "latestapp.jar", new File(programFolder,
 							"app.jar"), verapp, new File(programFolder,
-							"ppversion"), this.progressBar, false);
+							Launcher.APP_VERSION_FILE_NAME), this.mainFrame.getProgressBar(), false);
 				}
 
-				this.progressBar.setMaximum(100);
+				this.mainFrame.getProgressBar().setMaximum(100);
 
 				if (!updated) {
-					this.progressBar.setIndeterminate(false);
-					this.progressBar
-							.setString("No updates found, starting application...");
-					this.progressBar.setValue(100);
+					this.mainFrame.getProgressBar().setIndeterminate(false);
+					this.mainFrame.setProgressBarText("No updates found, starting application...");
+					this.mainFrame.getProgressBar().setValue(100);
 				} else {
-					this.progressBar.setIndeterminate(false);
-					this.progressBar
-							.setString("Update done, starting application...");
-					this.progressBar.setValue(100);
+					this.mainFrame.getProgressBar().setIndeterminate(false);
+					this.mainFrame.setProgressBarText("Update done, starting application...");
+					this.mainFrame.getProgressBar().setValue(100);
 				}
 
-				runApp(frame);
+				runApp(this.mainFrame);
 
 			} catch (Exception e) {
-				this.progressBar.setIndeterminate(false);
-				this.progressBar
-						.setString("An error occured while downloading updates, starting application...");
-				this.progressBar.setValue(100);
+				this.mainFrame.getProgressBar().setIndeterminate(false);
+				this.mainFrame.setProgressBarText("An error occured while downloading updates, starting application...");
+				this.mainFrame.getProgressBar().setValue(100);
 			}
 
 		} catch (Exception ex) {
 
-			this.progressBar.setIndeterminate(false);
-			this.progressBar
-					.setString("An error occured while checking for updates, starting application...");
-			this.progressBar.setValue(100);
+			this.mainFrame.getProgressBar().setIndeterminate(false);
+			this.mainFrame.setProgressBarText("An error occured while checking for updates, starting application...");
+			this.mainFrame.getProgressBar().setValue(100);
 
-			runApp(frame);
+			runApp(this.mainFrame);
 
 			ex.printStackTrace();
 		}
@@ -173,7 +164,7 @@ public class Launcher implements Runnable {
 	}
 
 	public void checkLauncher() {
-		Version li = getVersion(new File(programFolder, "lversion"));
+		Version li = getVersion(new File(programFolder, Launcher.LAUNCHER_VERSION_FILE_NAME));
 		File rf = new File(System.getProperty("user.dir"));
 		if (!rf.equals(programFolder)) {
 			if (li != null && li.isNewerThan(version)) {
@@ -207,44 +198,11 @@ public class Launcher implements Runnable {
 	}
 
 	public void startGui() {
-		Version appVersion = getVersion(new File(programFolder, "aversion"));
+		Launcher.appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
 
-		UIManager.put("ProgressBar.background", Color.GRAY);
-		UIManager.put("ProgressBar.foreground", Color.DARK_GRAY);
-		UIManager.put("ProgressBar.selectionBackground", Color.WHITE);
-		UIManager.put("ProgressBar.selectionForeground", Color.WHITE);
-		UIManager.put("ProgressBar.repaintInterval", new Integer(20));
-
-		this.progressBar = new JProgressBar(0, 100);
-		this.progressBar.setStringPainted(true);
-		this.progressBar.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1,
-				Color.BLACK));
-		this.progressBar.setUI(new BasicProgressBarUI());
-		this.progressBar.setValue(0);
-
-		LogoPanel lp = new LogoPanel();
-		if (appVersion.i0 >= 0) {
-			lp.appVersion = "" + appVersion;
-		}
-
-		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
-		BorderLayout bl = new BorderLayout();
-		this.progressBar.setFont(lp.infoFont);
-
-		this.frame = new JFrame("Order of the Stone Launcher v" + appVersion);
-
-		this.frame.setUndecorated(true);
-		this.frame.setSize(600, 320);
-		this.frame.setLocationRelativeTo(null);
-		this.frame.setBackground(Color.WHITE);
-		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.frame.setLayout(bl);
-		this.frame.add(lp, BorderLayout.CENTER);
-		this.frame.add(this.progressBar, BorderLayout.SOUTH);
-		this.frame.setVisible(true);
-
-		this.progressBar.setString("Looking for updates...");
-		this.progressBar.setIndeterminate(true);
+		this.mainFrame = new MainFrame();
+		this.mainFrame.initControls();
+		this.mainFrame.setVisible(true);
 
 		try {
 			Thread.sleep(1000); // Wait for the splash animation to finish :P
@@ -378,20 +336,11 @@ public class Launcher implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 		frameToDispose.dispose();
 
-		op = new OutputPanel();
-
-		op.setBorder(BorderFactory.createEmptyBorder());
-
-		JFrame frame = new JFrame("Debug window");
-		frame.add(op);
-		frame.setSize(600, 320);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
+		this.debugFrame = new DebugFrame();
+		this.debugFrame.setVisible(true);
 		
-		frame.setVisible(true);
 
 		try {
 
@@ -413,8 +362,7 @@ public class Launcher implements Runnable {
 
 	public int runCommand(String cmd) throws IOException {
 		Process proc = Runtime.getRuntime().exec(cmd);			
-		InputStream istr = proc.getInputStream();
-		
+
 		StreamGobbler iS = new StreamGobbler(proc.getInputStream());
 		StreamGobbler eS = new StreamGobbler(proc.getErrorStream());
 		

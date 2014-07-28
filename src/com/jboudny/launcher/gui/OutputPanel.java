@@ -1,4 +1,4 @@
-package com.jboudny.launcher;
+package com.jboudny.launcher.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
