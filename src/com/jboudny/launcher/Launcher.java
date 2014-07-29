@@ -59,6 +59,9 @@ public class Launcher implements Runnable {
 		appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
 		
 		this.doUpdating();
+		
+		if(saved)
+			this.doLoginAndRun(true, config.username, config.password);
 	}
 	
 	public void doLoginAndRun(boolean login, String username, String password) {
