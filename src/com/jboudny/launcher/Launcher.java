@@ -20,6 +20,7 @@ import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
+import com.jboudny.launcher.Authentication.AuthStatus;
 import com.jboudny.launcher.gui.DebugFrame;
 import com.jboudny.launcher.gui.MainFrame;
 
@@ -66,10 +67,28 @@ public class Launcher implements Runnable {
 	
 	public void doLoginAndRun(boolean login, String username, String password) {
 		if(login) {
-			//TODO: Token
-			this.runApp(this.mainFrame, username + " " + password);
+			String token = this.authenticate(username, password);
+			this.runApp(this.mainFrame, username + " " + password + " " + (token == null ? "badtoken" : token));
 		} else {
 			this.runApp(this.mainFrame, "");
+		}
+	}
+	
+	private String authenticate(String username, String password) {
+		Authentication au = new Authentication();
+		AuthStatus res = au.authenticate(username, password);
+	
+		switch(res) {
+		case ERROR_BAD:
+			JOptionPane.showMessageDialog(mainFrame, "Wrong username/password");
+			return null;
+		case ERROR_OTHER:
+			JOptionPane.showMessageDialog(mainFrame, "Error!");
+			return null;
+		case FINE:
+			return au.getToken();
+		default:
+			return null;
 		}
 	}
 	
