@@ -423,7 +423,8 @@ public class Launcher implements Runnable {
 
 	public void runCommand(String cmd, IProcessExitCallback onExit)
 			throws IOException {
-		Process proc = Runtime.getRuntime().exec(cmd);
+		Process proc = Runtime.getRuntime().exec(cmd, null, this.programFolder);
+		
 
 		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc,
 				onExit);
