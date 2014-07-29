@@ -1,16 +1,20 @@
 package com.jboudny.launcher;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
-import java.util.logging.Logger;
-
 
 public class Authentication {
 	public enum AuthStatus {
 		ERROR_BAD, ERROR_OTHER, FINE
 	}
 	
-	private final String AUTHSERVICE_URL = "authTokenServ";
+	private final String AUTHSERVICE_URL = "http://ondryasondra.aspone.cz/tokengen.ashx";
 
 	private User currentUser;
 
@@ -61,13 +65,6 @@ public class Authentication {
 		return currentUser.isAuthenticated();
 	}
 	
-
-	private String excutePost(String url, String params) {
-		Logger.getGlobal().info("POST: " + url + ", params " + params);
-		return "hash1234token";
-	}
-
-	/*
 	private String excutePost(String targetURL, String urlParameters) {
 		URL url;
 		HttpURLConnection connection = null;
@@ -119,5 +116,4 @@ public class Authentication {
 		}
 	}
 
-*/
 }

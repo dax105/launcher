@@ -14,7 +14,7 @@ import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingExcepti
 
 public class Config {
 
-	public static final String DEFAULT_SERVER = "http://www.jboudny.kx.cz/";
+	public static final String DEFAULT_SERVER = "http://ondryasondra.aspone.cz/";
 
 	public String server = DEFAULT_SERVER;
 	public String username = "";

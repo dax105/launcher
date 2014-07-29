@@ -75,9 +75,11 @@ public class LogoPanelLogin extends LogoPanel {
 				
 				paint(getGraphics());
 				
-				launcher.getConfig().username = username.getText();
-				launcher.getConfig().password = password.getText();
-				launcher.getConfig().save(true);
+				if (checkBox.isSelected()) {
+					launcher.getConfig().username = username.getText();
+					launcher.getConfig().password = password.getText();
+					launcher.getConfig().save(true);
+				}
 				
 				if (!launcher.doLoginAndRun(username.getText(), password.getText())) {
 					loginButton.setText("Login");

@@ -23,7 +23,7 @@ import com.jboudny.launcher.gui.MainFrame;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(0, 9, 5);
+	public static Version version = new Version(1, 0, 0);
 	public static Version appVersion;
 	public static final String DIRECTORY_NAME = "oots";
 	public static final String APP_NAME = "Order of the Stone";
