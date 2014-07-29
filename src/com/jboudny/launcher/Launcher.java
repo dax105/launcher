@@ -58,10 +58,19 @@ public class Launcher implements Runnable {
 	
 		appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
 		
-		this.doWork();
+		this.doUpdating();
 	}
 	
-	public void doWork() {
+	public void doLoginAndRun(boolean login, String username, String password) {
+		if(login) {
+			//TODO: Token
+			this.runApp(this.mainFrame, username + " " + password);
+		} else {
+			this.runApp(this.mainFrame, "");
+		}
+	}
+	
+	public void doUpdating() {
 		try {
 			Version verapp;
 			Version verlaunch;
@@ -144,8 +153,6 @@ public class Launcher implements Runnable {
 			this.mainFrame.setError("An error occured while checking for updates, starting application...");
 			ex.printStackTrace();
 		}
-		
-		runApp(this.mainFrame, "");
 	}
 
 	public void checkDirectory() {
