@@ -2,50 +2,30 @@ package com.jboudny.launcher.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.plaf.ButtonUI;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.basic.BasicButtonUI;
-import javax.swing.plaf.basic.BasicCheckBoxUI;
 import javax.swing.plaf.basic.BasicPasswordFieldUI;
-import javax.swing.plaf.basic.BasicTextAreaUI;
 import javax.swing.plaf.basic.BasicTextFieldUI;
-import javax.swing.plaf.basic.BasicTextUI;
-import javax.swing.plaf.metal.MetalCheckBoxUI;
-import javax.swing.plaf.metal.MetalIconFactory;
 
 import com.jboudny.launcher.Launcher;
-import com.sun.java.swing.plaf.windows.WindowsCheckBoxUI;
 
 public class LogoPanelLogin extends LogoPanel {
 
 	private static final long serialVersionUID = 1L;
-	
-	private Launcher launcher;
-	
 	private final JTextField username;
 	private final JPasswordField password;
 	private final JButton loginButton;
@@ -55,7 +35,6 @@ public class LogoPanelLogin extends LogoPanel {
 	public LogoPanelLogin(final Launcher launcher) {
 		super();
 		this.login = true;
-		this.launcher = launcher;
 		
 		UIManager.put("CheckBox.focus", new Color(0,0,0,0));
 		UIManager.put("CheckBox.select", Color.GRAY);
@@ -96,7 +75,11 @@ public class LogoPanelLogin extends LogoPanel {
 				
 				paint(getGraphics());
 				
-				if (!launcher.doLoginAndRun(true, username.getText(), password.getText())) {
+				launcher.getConfig().username = username.getText();
+				launcher.getConfig().password = password.getText();
+				launcher.getConfig().save(true);
+				
+				if (!launcher.doLoginAndRun(username.getText(), password.getText())) {
 					loginButton.setText("Login");
 					loginButton.setEnabled(true);
 					

@@ -6,6 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.util.logging.Logger;
+
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 
 public class Config {
 
@@ -65,7 +70,7 @@ public class Config {
 
 			if (saveCredentials) {
 				pw.println("username " + username);
-				pw.println("password " + password);
+				pw.println("password " + this.encodePassword(password));
 			}
 
 			if (!server.equals(DEFAULT_SERVER)) {
@@ -95,12 +100,32 @@ public class Config {
 				this.username = words[1];
 				break;
 			case "password":
-				this.password = words[1];
+				this.password = this.decodePassword(words[1]);
 				break;
 			default:
 				System.out.println("Invalid setting \"" + s + "\"");
 				break;
 			}
+		}
+	}
+	
+	//TODO: basic password encrypting
+	private String encodePassword(String pwd) {
+		try {
+			return PassEncrypting.encrypt(pwd);
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
+			Logger.getGlobal().warning("Error in encoding password!");
+			return pwd;
+		}
+	}
+	
+	private String decodePassword(String pwd) {
+		try {
+			return PassEncrypting.decrypt(pwd);
+		} catch (Base64DecodingException | UnsupportedEncodingException
+				| GeneralSecurityException e) {
+			Logger.getGlobal().warning("Error in decoding password!");
+			return pwd;
 		}
 	}
 

@@ -1,6 +1,5 @@
 package com.jboudny.launcher;
 
-import java.awt.Color;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +40,10 @@ public class Launcher implements Runnable {
 	private MainFrame mainFrame;
 	private DebugFrame debugFrame;
 
+	public Config getConfig() {
+		return config;
+	}
+	
 	@Override
 	public void run() {
 		System.out.println("Current version is: " + version);
@@ -63,21 +66,22 @@ public class Launcher implements Runnable {
 		this.doUpdating();
 
 		if (saved)
-			this.doLoginAndRun(true, config.username, config.password);
+			this.doLoginAndRun(config.username, config.password);
 	}
 
-	public boolean doLoginAndRun(boolean login, String username, String password) {
-		if(login) {
-			String token = this.authenticate(username, password);
-			this.runApp(this.mainFrame, username + " " + password + " " + (token == null ? "badtoken" : token));
-		} else {
-			//this.runApp(this.mainFrame, "");
-		}
+	public boolean doLoginAndRun(String username, String password) {
+		String token = this.authenticate(username, password);
+		
+		if(token == null) 
+			return false;
+		
+		this.config.username = username;
+		this.config.password = password;
+		this.runApp(this.mainFrame, username + " " + password + " " + token);
 		
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
