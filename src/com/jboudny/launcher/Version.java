@@ -11,6 +11,10 @@ public class Version {
 	}
 	
 	public boolean isNewerThan(Version toCompare) {
+		if (toCompare == null) {
+			return true;
+		}
+		
 		if (this.i0 < toCompare.i0) {
 			return false;
 		} else if (this.i0 > toCompare.i0) {

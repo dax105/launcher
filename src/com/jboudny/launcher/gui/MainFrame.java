@@ -19,6 +19,8 @@ public class MainFrame extends JFrame {
 	LogoPanel lp;
 	JProgressBar progressBar;
 	
+	boolean saved;
+	
 	public MainFrame(Launcher launcher, boolean justLogo) {
 		super(Launcher.APP_NAME + " launcher v" + Launcher.version);
 		
@@ -35,6 +37,8 @@ public class MainFrame extends JFrame {
 		this.setBackground(Color.WHITE);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(bl);
+		
+		this.saved = justLogo;
 		
 		if (justLogo) {
 			lp = new LogoPanel();

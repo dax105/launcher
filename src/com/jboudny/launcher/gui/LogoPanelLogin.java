@@ -21,6 +21,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -45,14 +46,13 @@ public class LogoPanelLogin extends LogoPanel {
 	
 	private Launcher launcher;
 	
-	private JTextField username;
-	private JPasswordField password;
-	private JButton loginButton;
-	private JCheckBox checkBox;
+	private final JTextField username;
+	private final JPasswordField password;
+	private final JButton loginButton;
+	private final JCheckBox checkBox;
+	private final JLabel loginText;
 	
-	
-	
-	public LogoPanelLogin(Launcher launcher) {
+	public LogoPanelLogin(final Launcher launcher) {
 		super();
 		this.login = true;
 		this.launcher = launcher;
@@ -64,26 +64,51 @@ public class LogoPanelLogin extends LogoPanel {
 		UIManager.put("Button.focus", new Color(0,0,0,0));
 		UIManager.put("Button.select", Color.GRAY);
 		
+		GridBagConstraints c = new GridBagConstraints();
+		
 		this.username = new JTextField(20);
-		GhostText gu = new GhostText(username, " Username");
+		new GhostText(username, " Username");
 		
 		this.password = new JPasswordField(20);
-		GhostText gp = new GhostText(password, " Password");
+		new GhostText(password, " Password");
 		
 		this.loginButton = new JButton("Login");
 		this.checkBox = new JCheckBox("Remember account", false);
 		
+		final GridBagLayout layout = new GridBagLayout();
+		
+		this.loginText = new JLabel("Logging in...");
+		this.loginText.setFont(this.infoFont);
+		loginText.setVisible(false);
+		
 		this.loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Call something in launcher to proceed
+				//loginText.setVisible(true);
+				
+				loginButton.setText("Logging in...");
+				loginButton.setEnabled(false);
+				
+				username.setEnabled(false);
+				password.setEnabled(false);
+				checkBox.setEnabled(false);
+				
+				
+				paint(getGraphics());
+				
+				if (!launcher.doLoginAndRun(true, username.getText(), password.getText())) {
+					loginButton.setText("Login");
+					loginButton.setEnabled(true);
+					
+					username.setEnabled(true);
+					password.setEnabled(true);
+					checkBox.setEnabled(true);
+				}
+				
 			}
 		});
 		
 		this.setLayout(new BorderLayout());
-		
-		GridBagLayout layout = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
 		
@@ -107,24 +132,30 @@ public class LogoPanelLogin extends LogoPanel {
 		loginButton.setPreferredSize(new Dimension(300, 22));
 		this.add(loginButton, c);
 		c.gridy = 3;
-		c.insets = new Insets(0,0,0,10);
-		
 		checkBox.setAlignmentY(JComponent.CENTER_ALIGNMENT);
 		checkBox.setPreferredSize(new Dimension(300, 20));
 		checkBox.setBackground(Color.WHITE);
+		checkBox.setFont(this.infoFont);
+		this.add(checkBox, c);
+		c.gridy = 3;
+		c.gridx = 0;
+		c.insets = new Insets(0,0,0,0);
+		loginText.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+		this.add(loginText, c);
 		
 		//loginButton.setUI(new BasicButtonUI());
 		
 		username.setUI(new BasicTextFieldUI());
 		username.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		username.setFont(this.infoFont);
 		
 		password.setUI(new BasicPasswordFieldUI());
 		password.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		password.setFont(this.infoFont);
 		
 		loginButton.setBackground(Color.LIGHT_GRAY);
 		loginButton.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		
-		this.add(checkBox, c);
+		loginButton.setFont(this.infoFont);
 		
 		username.setFocusable(false);
 		username.setFocusable(true);
@@ -134,6 +165,9 @@ public class LogoPanelLogin extends LogoPanel {
 	@Override
 	public void onPaint(Graphics2D g) {
 		super.onPaint(g);
+		
+		//TODO Status info
+		
 	}
 
 }

@@ -17,8 +17,6 @@ import java.util.Scanner;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
-import javax.swing.UIManager;
-import javax.swing.plaf.ColorUIResource;
 
 import com.jboudny.launcher.gui.DebugFrame;
 import com.jboudny.launcher.gui.MainFrame;
@@ -33,7 +31,8 @@ public class Launcher implements Runnable {
 	public static final String LAUNCHER_VERSION_FILE_NAME = "lversion";
 	public static final String CONFIGURATION_FILE_NAME = "config.cfg";
 
-	private File programFolder = new File(OSUtils.userDataFolder(DIRECTORY_NAME));
+	private File programFolder = new File(
+			OSUtils.userDataFolder(DIRECTORY_NAME));
 	private String appverurl;
 	private String launchverurl;
 	private Config config;
@@ -46,33 +45,48 @@ public class Launcher implements Runnable {
 		System.out.println("Current version is: " + version);
 		System.out.println("App folder: " + programFolder.getAbsolutePath());
 
-		this.config = new Config(new File(programFolder, Launcher.CONFIGURATION_FILE_NAME));
+		this.config = new Config(new File(programFolder,
+				Launcher.CONFIGURATION_FILE_NAME));
 		appverurl = config.server + "appversion.txt";
 		launchverurl = config.server + "launcherversion.txt";
-		
+
 		boolean saved = config.hasSavedCredentials();
-		
+
 		this.checkDirectory();
 		this.checkLauncher();
 		this.startGui(saved);
-	
-		appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
-		
+
+		appVersion = getVersion(new File(programFolder,
+				Launcher.APP_VERSION_FILE_NAME));
+
 		this.doUpdating();
-		
-		if(saved)
+
+		if (saved)
 			this.doLoginAndRun(true, config.username, config.password);
 	}
-	
-	public void doLoginAndRun(boolean login, String username, String password) {
-		if(login) {
-			//TODO: Token
-			this.runApp(this.mainFrame, username + " " + password);
+
+	public boolean doLoginAndRun(boolean login, String username, String password) {
+		
+		//TODO tohle by melo vratit false, kdyz bude login neuspesny!
+		//TODO nejak to nathreadovat
+		//TODO ukladani credentials
+		if (login) {
+			// TODO: Token
+			//this.runApp(this.mainFrame, username + " " + password);
 		} else {
-			this.runApp(this.mainFrame, "");
+			//this.runApp(this.mainFrame, "");
 		}
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return false;
 	}
-	
+
 	public void doUpdating() {
 		try {
 			Version verapp;
@@ -99,14 +113,18 @@ public class Launcher implements Runnable {
 
 				if (verlaunch.isNewerThan(version)) {
 					updated = true;
-					this.mainFrame.setProgressBarText("Downloading new version of launcher (" + verlaunch + ")...");
+					this.mainFrame
+							.setProgressBarText("Downloading new version of launcher ("
+									+ verlaunch + ")...");
 
 					update(config.server + "latestlauncher.jar", new File(
 							programFolder, "launcher.jar"), verlaunch,
-							new File(programFolder, Launcher.LAUNCHER_VERSION_FILE_NAME),
+							new File(programFolder,
+									Launcher.LAUNCHER_VERSION_FILE_NAME),
 							this.mainFrame.getProgressBar(), true);
 
-					Version li = getVersion(new File(programFolder, Launcher.LAUNCHER_VERSION_FILE_NAME));
+					Version li = getVersion(new File(programFolder,
+							Launcher.LAUNCHER_VERSION_FILE_NAME));
 
 					if (li != null && li.isNewerThan(version)) {
 
@@ -133,23 +151,28 @@ public class Launcher implements Runnable {
 
 				if (verapp.isNewerThan(appVersion)) {
 					updated = true;
-					this.mainFrame.setProgressBarText("Downloading new version of application ("
+					this.mainFrame
+							.setProgressBarText("Downloading new version of application ("
 									+ verapp + ")...");
-					update(config.server + "latestapp.jar", new File(programFolder,
-							"app.jar"), verapp, new File(programFolder,
-							Launcher.APP_VERSION_FILE_NAME), this.mainFrame.getProgressBar(), false);
+					update(config.server + "latestapp.jar", new File(
+							programFolder, "app.jar"), verapp, new File(
+							programFolder, Launcher.APP_VERSION_FILE_NAME),
+							this.mainFrame.getProgressBar(), false);
 				}
 
 				this.mainFrame.getProgressBar().setMaximum(100);
 
 				if (!updated) {
-					this.mainFrame.setError("No updates found, starting application...");
+					this.mainFrame
+							.setError("No updates found, starting application...");
 				} else {
-					this.mainFrame.setError("Update done, starting application...");
+					this.mainFrame
+							.setError("Update done, starting application...");
 				}
 
 			} catch (Exception e) {
 				this.mainFrame.setError("An error occured while downloading updates, starting application...");
+				e.printStackTrace();
 			}
 
 		} catch (Exception ex) {
@@ -173,7 +196,8 @@ public class Launcher implements Runnable {
 	}
 
 	public void checkLauncher() {
-		Version li = getVersion(new File(programFolder, Launcher.LAUNCHER_VERSION_FILE_NAME));
+		Version li = getVersion(new File(programFolder,
+				Launcher.LAUNCHER_VERSION_FILE_NAME));
 		File rf = new File(System.getProperty("user.dir"));
 		if (!rf.equals(programFolder)) {
 			if (li != null && li.isNewerThan(version)) {
@@ -207,17 +231,18 @@ public class Launcher implements Runnable {
 	}
 
 	public void startGui(boolean justLogo) {
-		Launcher.appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
-		
+		Launcher.appVersion = getVersion(new File(programFolder,
+				Launcher.APP_VERSION_FILE_NAME));
+
 		this.mainFrame = new MainFrame(this, justLogo);
 		this.mainFrame.initControls();
 		this.mainFrame.setVisible(true);
 
-		try {
-			Thread.sleep(1000000); // Wait for the splash animation to finish :P
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+			try {
+				Thread.sleep(1000); // Wait for the splash animation to finish :P
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 	}
 
 	public void update(String url, File f, Version newVersion,
@@ -349,38 +374,42 @@ public class Launcher implements Runnable {
 
 		this.debugFrame = new DebugFrame();
 		this.debugFrame.setVisible(true);
-		
 
 		try {
-			runCommand("java -jar " + new File(this.programFolder, "app.jar").getAbsolutePath() + " " + jarParams,
-					new IProcessExitCallback() {
+			runCommand(
+					"java -jar "
+							+ new File(this.programFolder, "app.jar").getAbsolutePath()
+							+ " " + jarParams, new IProcessExitCallback() {
 
 						@Override
 						public void onExit(int exitCode) {
 							if (exitCode == 0) {
-								System.out.println("APPLICATION EXITED NORMALLY, EXIT CODE: 0");
+								System.out
+										.println("APPLICATION EXITED NORMALLY, EXIT CODE: 0");
 							} else {
-								System.out.println("APPLICATION HAS CRASHED, EXIT CODE: "
-										+ exitCode);
+								System.out
+										.println("APPLICATION HAS CRASHED, EXIT CODE: "
+												+ exitCode);
 								System.out
 										.println("PLEASE SEND THIS LOG TO THE AUTHOR TO FIX THE ISSUE!");
 							}
 						}
-				
-			});
 
+					});
 
 		} catch (IOException e) {
 			System.err.println(e);
 		}
 	}
 
-	public void runCommand(String cmd, IProcessExitCallback onExit) throws IOException {
-		Process proc = Runtime.getRuntime().exec(cmd);			
+	public void runCommand(String cmd, IProcessExitCallback onExit)
+			throws IOException {
+		Process proc = Runtime.getRuntime().exec(cmd);
 
-		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc, onExit);
+		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc,
+				onExit);
 		StreamGobbler eS = new StreamGobbler(proc.getErrorStream(), proc, null);
-		
+
 		iS.start();
 		eS.start();
 	}
@@ -394,35 +423,35 @@ public class Launcher implements Runnable {
 }
 
 class StreamGobbler extends Thread {
-    InputStream is;
-    IProcessExitCallback callback;
-    Process p;
-    
-    public StreamGobbler(InputStream is, Process process, IProcessExitCallback callback) {
-        this.is = is;
-        this.callback = callback;
-        this.p = process;
-    }
+	InputStream is;
+	IProcessExitCallback callback;
+	Process p;
 
-    @Override
-    public void run() {
-        try {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String line = null;
-            while ((line = br.readLine()) != null)
-                System.out.println(line);
-            
-            p.destroy();
-            
-            if(callback != null)
-            	callback.onExit(p.exitValue());
-            br.close();
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
+	public StreamGobbler(InputStream is, Process process,
+			IProcessExitCallback callback) {
+		this.is = is;
+		this.callback = callback;
+		this.p = process;
+	}
+
+	@Override
+	public void run() {
+		try {
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
+			while ((line = br.readLine()) != null)
+				System.out.println(line);
+
+			p.destroy();
+
+			if (callback != null)
+				callback.onExit(p.exitValue());
+			br.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 }
 
 interface IProcessExitCallback {
