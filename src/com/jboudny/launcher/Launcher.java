@@ -23,7 +23,7 @@ import com.jboudny.launcher.gui.MainFrame;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(1, 0, 0);
+	public static Version version = new Version(1, 0, 1);
 	public static Version appVersion;
 	public static final String DIRECTORY_NAME = "oots";
 	public static final String APP_NAME = "Order of the Stone";
@@ -39,6 +39,8 @@ public class Launcher implements Runnable {
 
 	private MainFrame mainFrame;
 	private DebugFrame debugFrame;
+	
+	private boolean saved;
 
 	public Config getConfig() {
 		return config;
@@ -54,7 +56,7 @@ public class Launcher implements Runnable {
 		appverurl = config.server + "appversion.txt";
 		launchverurl = config.server + "launcherversion.txt";
 
-		boolean saved = config.hasSavedCredentials();
+		this.saved = config.hasSavedCredentials();
 
 		this.checkDirectory();
 		this.checkLauncher();
@@ -65,8 +67,7 @@ public class Launcher implements Runnable {
 
 		this.doUpdating();
 
-		if (saved)
-			this.doLoginAndRun(config.username, config.password);
+		if (saved)this.doLoginAndRun(config.username, config.password);
 	}
 
 	public boolean doLoginAndRun(String username, String password) {
@@ -182,20 +183,18 @@ public class Launcher implements Runnable {
 				this.mainFrame.getProgressBar().setMaximum(100);
 
 				if (!updated) {
-					this.mainFrame
-							.setError("No updates found, starting application...");
+					this.mainFrame.setBarText("No updates found, starting application...");
 				} else {
-					this.mainFrame
-							.setError("Update done, starting application...");
+					this.mainFrame.setBarText("Update done, starting application...");
 				}
 
 			} catch (Exception e) {
-				this.mainFrame.setError("An error occured while downloading updates, starting application...");
+				this.mainFrame.setBarText("An error occured while downloading updates, starting application...");
 				e.printStackTrace();
 			}
 
 		} catch (Exception ex) {
-			this.mainFrame.setError("An error occured while checking for updates, starting application...");
+			this.mainFrame.setBarText("An error occured while checking for updates, starting application...");
 			ex.printStackTrace();
 		}
 	}

@@ -64,7 +64,7 @@ public class LogoPanel extends JPanel {
 		}, 0, (int) (steptime * 1000f));
 
 		setBackground(Color.WHITE);
-		login = true;
+		login = false;
 	}
 
 	public float calculateExpScale(float x) {
@@ -100,7 +100,7 @@ public class LogoPanel extends JPanel {
 			cy = this.getHeight() / 5;
 		}
 		
-			int y = (int) (cy + fml.getHeight() / 4 - (70 * (1 - stepMultExp)));
+		int y = (int) (cy + fml.getHeight() / 4 - (70 * (1 - stepMultExp)));
 
 		g.setColor(new Color(0, 0, 0, stepMult));
 

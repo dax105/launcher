@@ -78,7 +78,7 @@ public class MainFrame extends JFrame {
 		return this.progressBar;
 	}
 
-	public void setError(String errorText) {
+	public void setBarText(String errorText) {
 		this.getProgressBar().setIndeterminate(false);
 		this.setProgressBarText(errorText);
 		this.getProgressBar().setValue(100);
