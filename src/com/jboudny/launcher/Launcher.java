@@ -1,5 +1,6 @@
 package com.jboudny.launcher;
 
+import java.awt.Color;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,9 +13,12 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
 
 import com.jboudny.launcher.gui.DebugFrame;
 import com.jboudny.launcher.gui.MainFrame;
@@ -27,11 +31,12 @@ public class Launcher implements Runnable {
 	public static final String APP_NAME = "Order of the Stone";
 	public static final String APP_VERSION_FILE_NAME = "appversion";
 	public static final String LAUNCHER_VERSION_FILE_NAME = "lversion";
+	public static final String CONFIGURATION_FILE_NAME = "config.cfg";
 
 	private File programFolder = new File(OSUtils.userDataFolder(DIRECTORY_NAME));
-	private String server = "http://www.jboudny.kx.cz/";
-	private String appverurl = server + "appversion.txt";
-	private String launchverurl = server + "launcherversion.txt";
+	private String appverurl;
+	private String launchverurl;
+	private Config config;
 
 	private MainFrame mainFrame;
 	private DebugFrame debugFrame;
@@ -41,10 +46,16 @@ public class Launcher implements Runnable {
 		System.out.println("Current version is: " + version);
 		System.out.println("App folder: " + programFolder.getAbsolutePath());
 
+		this.config = new Config(new File(programFolder, Launcher.CONFIGURATION_FILE_NAME));
+		appverurl = config.server + "appversion.txt";
+		launchverurl = config.server + "launcherversion.txt";
+		
+		boolean saved = config.hasSavedCredentials();
+		
 		this.checkDirectory();
 		this.checkLauncher();
-		this.startGui();
-		
+		this.startGui(saved);
+	
 		appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
 		
 		this.doWork();
@@ -78,7 +89,7 @@ public class Launcher implements Runnable {
 					updated = true;
 					this.mainFrame.setProgressBarText("Downloading new version of launcher (" + verlaunch + ")...");
 
-					update(server + "latestlauncher.jar", new File(
+					update(config.server + "latestlauncher.jar", new File(
 							programFolder, "launcher.jar"), verlaunch,
 							new File(programFolder, Launcher.LAUNCHER_VERSION_FILE_NAME),
 							this.mainFrame.getProgressBar(), true);
@@ -112,7 +123,7 @@ public class Launcher implements Runnable {
 					updated = true;
 					this.mainFrame.setProgressBarText("Downloading new version of application ("
 									+ verapp + ")...");
-					update(server + "latestapp.jar", new File(programFolder,
+					update(config.server + "latestapp.jar", new File(programFolder,
 							"app.jar"), verapp, new File(programFolder,
 							Launcher.APP_VERSION_FILE_NAME), this.mainFrame.getProgressBar(), false);
 				}
@@ -185,15 +196,15 @@ public class Launcher implements Runnable {
 		}
 	}
 
-	public void startGui() {
+	public void startGui(boolean justLogo) {
 		Launcher.appVersion = getVersion(new File(programFolder, Launcher.APP_VERSION_FILE_NAME));
-
-		this.mainFrame = new MainFrame();
+		
+		this.mainFrame = new MainFrame(this, justLogo);
 		this.mainFrame.initControls();
 		this.mainFrame.setVisible(true);
 
 		try {
-			Thread.sleep(1000); // Wait for the splash animation to finish :P
+			Thread.sleep(1000000); // Wait for the splash animation to finish :P
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -299,7 +310,7 @@ public class Launcher implements Runnable {
 			}
 
 		} catch (FileNotFoundException e) {
-			return new Version(-1, -1, -1);
+			return null;
 		}
 
 	}

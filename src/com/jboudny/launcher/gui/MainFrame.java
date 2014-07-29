@@ -2,6 +2,7 @@ package com.jboudny.launcher.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -15,10 +16,10 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = -6724401659166549898L;
 
 	BorderLayout bl = new BorderLayout();
-	LogoPanel lp = new LogoPanel();
+	LogoPanel lp;
 	JProgressBar progressBar;
 	
-	public MainFrame() {
+	public MainFrame(Launcher launcher, boolean justLogo) {
 		super(Launcher.APP_NAME + " launcher v" + Launcher.version);
 		
 		UIManager.put("ProgressBar.background", Color.GRAY);
@@ -29,10 +30,17 @@ public class MainFrame extends JFrame {
 		
 		this.setUndecorated(true);
 		this.setSize(600, 320);
+		this.setPreferredSize(new Dimension(600, 320));
 		this.setLocationRelativeTo(null);
 		this.setBackground(Color.WHITE);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(bl);
+		
+		if (justLogo) {
+			lp = new LogoPanel();
+		} else {
+			lp = new LogoPanelLogin(launcher);
+		}
 	}
 	
 	public void initControls() {
@@ -43,9 +51,10 @@ public class MainFrame extends JFrame {
 		this.progressBar.setUI(new BasicProgressBarUI());
 		this.progressBar.setValue(0);
 		
-		if (Launcher.appVersion.i0 >= 0) {
+		if (Launcher.appVersion != null) {
 			lp.appVersion = "" + Launcher.appVersion;
 		}
+		
 		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 		
 		this.progressBar.setFont(lp.infoFont);

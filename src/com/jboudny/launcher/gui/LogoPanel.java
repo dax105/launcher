@@ -17,7 +17,7 @@ import com.jboudny.launcher.Launcher;
 
 public class LogoPanel extends JPanel {
 	public String launcherVersion = "" + Launcher.version;
-	public String appVersion = "" + Launcher.appVersion;
+	public String appVersion = "N/A";
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,6 +26,8 @@ public class LogoPanel extends JPanel {
 
 	int steps = 48;
 	int step = 0;
+	
+	boolean login;
 
 	public LogoPanel() {
 		try {
@@ -62,6 +64,7 @@ public class LogoPanel extends JPanel {
 		}, 0, (int) (steptime * 1000f));
 
 		setBackground(Color.WHITE);
+		login = true;
 	}
 
 	public float calculateExpScale(float x) {
@@ -71,7 +74,7 @@ public class LogoPanel extends JPanel {
 
 		return 1 - v;
 	}
-
+	
 	@Override
 	public void paint(Graphics gd) {
 		super.paint(gd);
@@ -88,7 +91,16 @@ public class LogoPanel extends JPanel {
 		float stepMultExp = calculateExpScale(stepMult);
 
 		int x = this.getWidth() / 2 - fml.stringWidth(Launcher.APP_NAME) / 2;
-		int y = (int) (this.getHeight() / 2 + fml.getHeight() / 4 - (70 * (1 - stepMultExp)));
+		
+		int cy = 0;
+		
+		if (!login) {
+			cy = this.getHeight() / 2;
+		} else {
+			cy = this.getHeight() / 5;
+		}
+		
+			int y = (int) (cy + fml.getHeight() / 4 - (70 * (1 - stepMultExp)));
 
 		g.setColor(new Color(0, 0, 0, stepMult));
 
@@ -107,7 +119,13 @@ public class LogoPanel extends JPanel {
 				this.getHeight() - 6);
 		g.drawString(av, this.getWidth() - fmi.stringWidth(av) - 6 + (100 * (1 - stepMultExp)),
 				this.getHeight() - 6);
+		
+		onPaint(g);
 
+	}
+	
+	public void onPaint(Graphics2D g) {
+		
 	}
 
 }
