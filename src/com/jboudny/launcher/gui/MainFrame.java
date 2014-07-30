@@ -19,10 +19,7 @@ public class MainFrame extends JFrame {
 	BorderLayout bl = new BorderLayout();
 	LogoPanel lp;
 	JProgressBar progressBar;
-	
-	boolean saved;
-	
-	public MainFrame(Launcher launcher, boolean justLogo) {
+	public MainFrame() {
 		super(Launcher.APP_NAME + " launcher v" + Launcher.version);
 		
 		UIManager.put("ProgressBar.background", Color.GRAY);
@@ -38,14 +35,22 @@ public class MainFrame extends JFrame {
 		this.setBackground(Color.WHITE);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(bl);
-		
-		this.saved = justLogo;
-		
-		if (justLogo) {
-			lp = new LogoPanel();
+	}
+	
+	public void useLoginPanel(boolean use, Launcher launcher) {
+		if(use) {
+			if(this.lp != null)
+				this.remove(lp);
+			
+			this.lp = new LogoPanelLogin(launcher);
 		} else {
-			lp = new LogoPanelLogin(launcher);
+			this.lp = new LogoPanel();
 		}
+		
+		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
+		this.add(lp, BorderLayout.CENTER);
+		this.invalidate();
+		this.repaint();
 	}
 	
 	public LogoPanel getLogoPanel() {
@@ -59,14 +64,8 @@ public class MainFrame extends JFrame {
 				Color.BLACK));
 		this.progressBar.setUI(new BasicProgressBarUI());
 		this.progressBar.setValue(0);
-		
-		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
-		
-		this.progressBar.setFont(lp.infoFont);
-		
-		this.add(lp, BorderLayout.CENTER);
-		this.add(this.progressBar, BorderLayout.SOUTH);
-		
+		this.progressBar.setFont(lp.infoFont);	
+		this.add(this.progressBar, BorderLayout.SOUTH);		
 		this.progressBar.setString(LocalizationHelper.getBestLocalization().lookingForUpdates());
 		this.progressBar.setIndeterminate(true);
 	}

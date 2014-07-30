@@ -135,12 +135,12 @@ public class CsLocalization implements ILocalization {
 
 	@Override
 	public String normalProcessEnd() {
-		return "APLIKACE SKONČILA BEZ CHYB";
+		return "APLIKACE SKONCILA BEZ CHYB";
 	}
 
 	@Override
 	public String errorProcessEnd(int number) {
-		return "APLIKACE SKONČILA S CHYBOVÝM KÓDEM " + number + "!";
+		return "APLIKACE SKONCILA S CHYBOVYM KODEM " + number + "!";
 	}
 
 	@Override

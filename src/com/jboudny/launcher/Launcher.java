@@ -27,10 +27,10 @@ import com.jboudny.launcher.localization.*;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(1, 5, 1);
+	public static Version version = new Version(1, 5, 2);
 	public static Version appVersion;
 	public static String APP_NAME = "Order of the Stone";
-	
+
 	public static final String DIRECTORY_NAME = "oots";
 	public static final String APP_VERSION_FILE_NAME = "appversion";
 	public static final String LAUNCHER_VERSION_FILE_NAME = "lversion";
@@ -44,20 +44,20 @@ public class Launcher implements Runnable {
 
 	private MainFrame mainFrame;
 	private DebugFrame debugFrame;
-	
+
 	private boolean saved;
-	
+
 	private ILocalization local;
 
 	public Config getConfig() {
 		return config;
 	}
-	
+
 	@Override
 	public void run() {
 		this.local = LocalizationHelper.getBestLocalization();
 		Launcher.APP_NAME = this.local.applicationName();
-		
+
 		System.out.println(this.local.launcherVersion(version));
 		System.out.println(this.local.launcherFolder(programFolder));
 
@@ -78,33 +78,38 @@ public class Launcher implements Runnable {
 		this.doUpdating();
 		this.checkNatives();
 
-		if (saved)this.doLoginAndRun(config.username, config.password);
+		if (saved) {
+			boolean r = this.doLoginAndRun(config.username, config.password);
+			if(saved && !r) {
+				this.mainFrame.useLoginPanel(true, this);
+			}
+		}
 	}
 
 	public boolean doLoginAndRun(String username, String password) {
 		String token = this.authenticate(username, password);
-		
-		if(token == null) 
+
+		if (token == null)
 			return false;
-		
+
 		this.config.username = username;
 		this.config.password = password;
 		this.runApp(this.mainFrame, username + " " + password + " " + token);
-		
+
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		return true;
 	}
 
 	private String authenticate(String username, String password) {
 		Authentication au = new Authentication();
 		AuthStatus res = au.authenticate(username, password);
-	
-		switch(res) {
+
+		switch (res) {
 		case ERROR_BAD:
 			JOptionPane.showMessageDialog(mainFrame, this.local.badLogin());
 			return null;
@@ -117,12 +122,12 @@ public class Launcher implements Runnable {
 			return null;
 		}
 	}
-	
+
 	public void checkNatives() {
 		File natDir = new File(this.programFolder, "natives");
 		if (!(natDir.exists() && natDir.isDirectory())) {
 			this.mainFrame.setBarText(this.local.downloadingNatives());
-			
+
 			NativesDownloader down = new NativesDownloader(natDir,
 					config.server);
 			if (down.downloadNatives(this.mainFrame.getProgressBar())) {
@@ -130,11 +135,12 @@ public class Launcher implements Runnable {
 					down.unpackNatives();
 				} catch (ZipException e) {
 					e.printStackTrace();
-					
+
 					if (this.mainFrame.getLogoPanel() instanceof LogoPanelLogin) {
 						((LogoPanelLogin) this.mainFrame.getLogoPanel())
 								.setButtonEnabled(false);
-						this.mainFrame.setBarText(this.local.cantContinueNatives());
+						this.mainFrame.setBarText(this.local
+								.cantContinueNatives());
 					}
 				}
 			} else {
@@ -146,7 +152,7 @@ public class Launcher implements Runnable {
 			}
 		}
 	}
-	
+
 	public void doUpdating() {
 		try {
 			Version verapp;
@@ -172,8 +178,8 @@ public class Launcher implements Runnable {
 
 				if (verlaunch.isNewerThan(version)) {
 					updated = true;
-					this.mainFrame
-							.setProgressBarText(this.local.downloadingLatestLauncher(verlaunch));
+					this.mainFrame.setProgressBarText(this.local
+							.downloadingLatestLauncher(verlaunch));
 
 					update(config.server + "latestlauncher.jar", new File(
 							programFolder, "launcher.jar"), verlaunch,
@@ -190,8 +196,8 @@ public class Launcher implements Runnable {
 								+ ".jar");
 
 						if (launcher.exists()) {
-							System.out
-									.println(this.local.switchingToNewLauncher());
+							System.out.println(this.local
+									.switchingToNewLauncher());
 
 							try {
 								Runtime.getRuntime().exec(
@@ -209,8 +215,8 @@ public class Launcher implements Runnable {
 
 				if (verapp.isNewerThan(appVersion)) {
 					updated = true;
-					this.mainFrame
-							.setProgressBarText(this.local.downloadingLatestApp(verapp));
+					this.mainFrame.setProgressBarText(this.local
+							.downloadingLatestApp(verapp));
 					update(config.server + "latestapp.jar", new File(
 							programFolder, "app.jar"), verapp, new File(
 							programFolder, Launcher.APP_VERSION_FILE_NAME),
@@ -226,7 +232,8 @@ public class Launcher implements Runnable {
 				}
 
 			} catch (Exception e) {
-				this.mainFrame.setBarText(this.local.errorDownloadingStarting());
+				this.mainFrame
+						.setBarText(this.local.errorDownloadingStarting());
 				e.printStackTrace();
 			}
 
@@ -243,8 +250,7 @@ public class Launcher implements Runnable {
 				programFolder.mkdir();
 				System.out.println(this.local.directoryCreated());
 			} catch (SecurityException se) {
-				System.out
-						.println(this.local.errorCreatingDirectory());
+				System.out.println(this.local.errorCreatingDirectory());
 				System.exit(0);
 			}
 		}
@@ -260,8 +266,7 @@ public class Launcher implements Runnable {
 						+ ".jar");
 
 				if (launcher.exists()) {
-					System.out
-							.println(this.local.newerLauncherSwapping());
+					System.out.println(this.local.newerLauncherSwapping());
 
 					try {
 						Runtime.getRuntime().exec(
@@ -273,12 +278,11 @@ public class Launcher implements Runnable {
 					System.exit(0);
 
 				} else {
-					System.out
-							.println(this.local.newerLauncherDontFoundContinue());
+					System.out.println(this.local
+							.newerLauncherDontFoundContinue());
 				}
 			} else {
-				System.out
-						.println(this.local.newerLauncherDontFoundContinue());
+				System.out.println(this.local.newerLauncherDontFoundContinue());
 			}
 		} else {
 			System.out.println(this.local.runningInProgramFolder());
@@ -289,15 +293,16 @@ public class Launcher implements Runnable {
 		Launcher.appVersion = getVersion(new File(programFolder,
 				Launcher.APP_VERSION_FILE_NAME));
 
-		this.mainFrame = new MainFrame(this, justLogo);
+		this.mainFrame = new MainFrame();
+		this.mainFrame.useLoginPanel(!justLogo, this);
 		this.mainFrame.initControls();
 		this.mainFrame.setVisible(true);
 
-			try {
-				Thread.sleep(1000); // Wait for the splash animation to finish :P
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		try {
+			Thread.sleep(1000); // Wait for the splash animation to finish :P
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void update(String url, File f, Version newVersion,
@@ -451,19 +456,19 @@ public class Launcher implements Runnable {
 		}
 	}
 
-	public void runJar(String jarFile, String jarParams, IProcessExitCallback onExit)
-			throws IOException {
-		//TODO: Download natives
+	public void runJar(String jarFile, String jarParams,
+			IProcessExitCallback onExit) throws IOException {
+		// TODO: Download natives
 		JarLauncher l = new JarLauncher(jarFile);
 		l.setMinMemory(OSUtils.getFreeRam() / 4);
 		l.setMaxMemory(OSUtils.getFreeRam() / 2);
 		l.setNativesDir("natives");
 		l.setAppArgs(jarParams);
-		
-		Process proc = l.runJar(this.programFolder);
-		
 
-		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc, onExit);
+		Process proc = l.runJar(this.programFolder);
+
+		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc,
+				onExit);
 		StreamGobbler eS = new StreamGobbler(proc.getErrorStream(), proc, null);
 
 		iS.start();
@@ -502,10 +507,12 @@ class StreamGobbler extends Thread {
 			p.destroy();
 
 			if (callback != null) {
-				while(OSUtils.isProcessRunning(p)) {;}
+				while (OSUtils.isProcessRunning(p)) {
+					;
+				}
 				callback.onExit(p.exitValue());
 			}
-			
+
 			br.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
