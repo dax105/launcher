@@ -14,11 +14,10 @@ import java.util.TimerTask;
 import javax.swing.JPanel;
 
 import com.jboudny.launcher.Launcher;
+import com.jboudny.launcher.Version;
+import com.jboudny.launcher.localization.*;
 
 public class LogoPanel extends JPanel {
-	public String launcherVersion = "" + Launcher.version;
-	public String appVersion = "N/A";
-
 	private static final long serialVersionUID = 1L;
 
 	public Font logoFont = null;
@@ -28,8 +27,12 @@ public class LogoPanel extends JPanel {
 	int step = 0;
 	
 	boolean login;
+	
+	protected ILocalization local;
 
 	public LogoPanel() {
+		this.local = LocalizationHelper.getBestLocalization();
+		
 		try {
 			logoFont = Font.createFont(Font.TRUETYPE_FONT,
 					Thread.currentThread().getContextClassLoader().getResourceAsStream("com/jboudny/launcher/font.ttf"));
@@ -104,7 +107,7 @@ public class LogoPanel extends JPanel {
 
 		g.setColor(new Color(0, 0, 0, stepMult));
 
-		g.drawString(Launcher.APP_NAME, x, y);
+		g.drawString(this.local.applicationName(), x, y);
 
 		//g.setColor(Color.BLACK);
 
@@ -112,8 +115,10 @@ public class LogoPanel extends JPanel {
 
 		FontMetrics fmi = g.getFontMetrics(infoFont);
 
-		String lv = "Launcher version: " + launcherVersion;
-		String av = "App version: " + appVersion;
+		String lv = this.local.launcherVersion(Launcher.version);
+		String av = this.local
+				.applicationVersion(Launcher.appVersion == null ? Version
+						.getNullVersion() : Launcher.appVersion);
 
 		g.drawString(lv, 6 - (100 * (1 - stepMultExp)),
 				this.getHeight() - 6);

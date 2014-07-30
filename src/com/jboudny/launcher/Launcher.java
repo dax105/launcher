@@ -20,13 +20,15 @@ import javax.swing.JProgressBar;
 import com.jboudny.launcher.Authentication.AuthStatus;
 import com.jboudny.launcher.gui.DebugFrame;
 import com.jboudny.launcher.gui.MainFrame;
+import com.jboudny.launcher.localization.*;
 
 public class Launcher implements Runnable {
 
 	public static Version version = new Version(1, 0, 1);
 	public static Version appVersion;
+	public static String APP_NAME = "Order of the Stone";
+	
 	public static final String DIRECTORY_NAME = "oots";
-	public static final String APP_NAME = "Order of the Stone";
 	public static final String APP_VERSION_FILE_NAME = "appversion";
 	public static final String LAUNCHER_VERSION_FILE_NAME = "lversion";
 	public static final String CONFIGURATION_FILE_NAME = "config.cfg";
@@ -41,6 +43,8 @@ public class Launcher implements Runnable {
 	private DebugFrame debugFrame;
 	
 	private boolean saved;
+	
+	private ILocalization local;
 
 	public Config getConfig() {
 		return config;
@@ -48,8 +52,11 @@ public class Launcher implements Runnable {
 	
 	@Override
 	public void run() {
-		System.out.println("Current version is: " + version);
-		System.out.println("App folder: " + programFolder.getAbsolutePath());
+		this.local = LocalizationHelper.getBestLocalization();
+		Launcher.APP_NAME = this.local.applicationName();
+		
+		System.out.println(this.local.launcherVersion(version));
+		System.out.println(this.local.launcherFolder(programFolder));
 
 		this.config = new Config(new File(programFolder,
 				Launcher.CONFIGURATION_FILE_NAME));
@@ -95,10 +102,10 @@ public class Launcher implements Runnable {
 	
 		switch(res) {
 		case ERROR_BAD:
-			JOptionPane.showMessageDialog(mainFrame, "Wrong username/password");
+			JOptionPane.showMessageDialog(mainFrame, this.local.badLogin());
 			return null;
 		case ERROR_OTHER:
-			JOptionPane.showMessageDialog(mainFrame, "Error!");
+			JOptionPane.showMessageDialog(mainFrame, this.local.otherError());
 			return null;
 		case FINE:
 			return au.getToken();
@@ -119,11 +126,10 @@ public class Launcher implements Runnable {
 			Scanner sl = new Scanner(urll.openStream());
 
 			verlaunch = Version.parseVersion(sl.nextLine());
-			System.out.println("Latest launcher version on server is: "
-					+ verlaunch);
+			System.out.println(this.local.latestLauncherVersion(verlaunch));
 
 			verapp = Version.parseVersion(sa.nextLine());
-			System.out.println("Latest app version on server is: " + verapp);
+			System.out.println(this.local.latestAppVersion(verapp));
 
 			sa.close();
 			sl.close();
@@ -134,8 +140,7 @@ public class Launcher implements Runnable {
 				if (verlaunch.isNewerThan(version)) {
 					updated = true;
 					this.mainFrame
-							.setProgressBarText("Downloading new version of launcher ("
-									+ verlaunch + ")...");
+							.setProgressBarText(this.local.downloadingLatestLauncher(verlaunch));
 
 					update(config.server + "latestlauncher.jar", new File(
 							programFolder, "launcher.jar"), verlaunch,
@@ -153,7 +158,7 @@ public class Launcher implements Runnable {
 
 						if (launcher.exists()) {
 							System.out
-									.println("Switching to the newly downloaded version of launcher...");
+									.println(this.local.switchingToNewLauncher());
 
 							try {
 								Runtime.getRuntime().exec(
@@ -172,8 +177,7 @@ public class Launcher implements Runnable {
 				if (verapp.isNewerThan(appVersion)) {
 					updated = true;
 					this.mainFrame
-							.setProgressBarText("Downloading new version of application ("
-									+ verapp + ")...");
+							.setProgressBarText(this.local.downloadingLatestApp(verapp));
 					update(config.server + "latestapp.jar", new File(
 							programFolder, "app.jar"), verapp, new File(
 							programFolder, Launcher.APP_VERSION_FILE_NAME),
@@ -183,31 +187,31 @@ public class Launcher implements Runnable {
 				this.mainFrame.getProgressBar().setMaximum(100);
 
 				if (!updated) {
-					this.mainFrame.setBarText("No updates found, starting application...");
+					this.mainFrame.setBarText(this.local.noUpdatesStarting());
 				} else {
-					this.mainFrame.setBarText("Update done, starting application...");
+					this.mainFrame.setBarText(this.local.updatesDoneStarting());
 				}
 
 			} catch (Exception e) {
-				this.mainFrame.setBarText("An error occured while downloading updates, starting application...");
+				this.mainFrame.setBarText(this.local.errorDownloadingStarting());
 				e.printStackTrace();
 			}
 
 		} catch (Exception ex) {
-			this.mainFrame.setBarText("An error occured while checking for updates, starting application...");
+			this.mainFrame.setBarText(this.local.errorUpdatingStarting());
 			ex.printStackTrace();
 		}
 	}
 
 	public void checkDirectory() {
 		if (!programFolder.exists()) {
-			System.out.println("Directory not found, creating...");
+			System.out.println(this.local.directoryNotFound());
 			try {
 				programFolder.mkdir();
-				System.out.println("Directory created!");
+				System.out.println(this.local.directoryCreated());
 			} catch (SecurityException se) {
 				System.out
-						.println("Couldn't create app directory, please run this launcher with administrator rights");
+						.println(this.local.errorCreatingDirectory());
 				System.exit(0);
 			}
 		}
@@ -224,7 +228,7 @@ public class Launcher implements Runnable {
 
 				if (launcher.exists()) {
 					System.out
-							.println("Found newer launcher in app folder, swapping...");
+							.println(this.local.newerLauncherSwapping());
 
 					try {
 						Runtime.getRuntime().exec(
@@ -237,14 +241,14 @@ public class Launcher implements Runnable {
 
 				} else {
 					System.out
-							.println("Couldn't find newer version of launcher in app folder, continuing...");
+							.println(this.local.newerLauncherDontFoundContinue());
 				}
 			} else {
 				System.out
-						.println("Couldn't find newer version of launcher in app folder, continuing...");
+						.println(this.local.newerLauncherDontFoundContinue());
 			}
 		} else {
-			System.out.println("Already running in program folder!");
+			System.out.println(this.local.runningInProgramFolder());
 		}
 	}
 
@@ -343,7 +347,7 @@ public class Launcher implements Runnable {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new Exception("Error while downloading update");
+			throw new Exception(this.local.errorDownloading());
 		}
 	}
 
@@ -403,13 +407,10 @@ public class Launcher implements Runnable {
 						public void onExit(int exitCode) {
 							if (exitCode == 0) {
 								System.out
-										.println("APPLICATION EXITED NORMALLY, EXIT CODE: 0");
+										.println(local.normalProcessEnd());
 							} else {
 								System.out
-										.println("APPLICATION HAS CRASHED, EXIT CODE: "
-												+ exitCode);
-								System.out
-										.println("PLEASE SEND THIS LOG TO THE AUTHOR TO FIX THE ISSUE!");
+										.println(local.errorProcessEnd(exitCode));
 							}
 						}
 

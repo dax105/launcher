@@ -55,10 +55,6 @@ public class MainFrame extends JFrame {
 		this.progressBar.setUI(new BasicProgressBarUI());
 		this.progressBar.setValue(0);
 		
-		if (Launcher.appVersion != null) {
-			lp.appVersion = "" + Launcher.appVersion;
-		}
-		
 		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 		
 		this.progressBar.setFont(lp.infoFont);

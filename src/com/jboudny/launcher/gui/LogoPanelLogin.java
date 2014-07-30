@@ -22,6 +22,7 @@ import javax.swing.plaf.basic.BasicPasswordFieldUI;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 
 import com.jboudny.launcher.Launcher;
+import com.jboudny.launcher.localization.*;
 
 public class LogoPanelLogin extends LogoPanel {
 
@@ -46,17 +47,17 @@ public class LogoPanelLogin extends LogoPanel {
 		GridBagConstraints c = new GridBagConstraints();
 		
 		this.username = new JTextField(20);
-		new GhostText(username, " Username");
+		new GhostText(username, " " + this.local.userName());
 		
 		this.password = new JPasswordField(20);
-		new GhostText(password, " Password");
+		new GhostText(password, " " + this.local.password());
 		
-		this.loginButton = new JButton("Login");
-		this.checkBox = new JCheckBox("Remember account", false);
+		this.loginButton = new JButton(this.local.loginButton());
+		this.checkBox = new JCheckBox(this.local.rememberCredentials(), false);
 		
 		final GridBagLayout layout = new GridBagLayout();
 		
-		this.loginText = new JLabel("Logging in...");
+		this.loginText = new JLabel(this.local.loggingIn());
 		this.loginText.setFont(this.infoFont);
 		loginText.setVisible(false);
 		
@@ -65,7 +66,7 @@ public class LogoPanelLogin extends LogoPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				//loginText.setVisible(true);
 				
-				loginButton.setText("Logging in...");
+				loginButton.setText(local.loggingIn());
 				loginButton.setEnabled(false);
 				
 				username.setEnabled(false);

@@ -14,8 +14,8 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
 public class PassEncrypting {
 	private static final char[] PASSWORD = "somereallyrandomshitwhichyoureallyshouldchange".toCharArray();
     private static final byte[] SALT = {
-        (byte) 0xde, (byte) 0x33, (byte) 0x10, (byte) 0x12,
-        (byte) 0xde, (byte) 0x33, (byte) 0x10, (byte) 0x12,
+        (byte) 0x69, (byte) 0x27, (byte) 0x46, (byte) 0x66,
+        (byte) 0x66, (byte) 0x64, (byte) 0x72, (byte) 0x96,
     };
 	
 	public static String encrypt(String property) throws GeneralSecurityException, UnsupportedEncodingException {

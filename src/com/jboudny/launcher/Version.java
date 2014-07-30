@@ -4,6 +4,10 @@ public class Version {
 
 	public final int i0, i1, i2;
 	
+	public static Version getNullVersion() {
+		return new Version(0, 0, 0);
+	}
+	
 	public Version(int i0, int i1, int i2) {
 		this.i0 = i0;
 		this.i1 = i1;
