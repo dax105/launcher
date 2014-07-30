@@ -115,7 +115,7 @@ public class CsLocalization implements ILocalization {
 
 	@Override
 	public String newerLauncherDontFoundContinue() {
-		return "Není novější launcher";
+		return "Novější launcher nenalezen";
 	}
 
 	@Override
@@ -126,6 +126,11 @@ public class CsLocalization implements ILocalization {
 	@Override
 	public String errorDownloading() {
 		return "Chyba při stahování aktualizace";
+	}
+	
+	@Override
+	public String errorDownloadingNatives() {
+		return "Chyba při stahování knihoven";
 	}
 
 	@Override
@@ -161,6 +166,21 @@ public class CsLocalization implements ILocalization {
 	@Override
 	public String loginButton() {
 		return "Přihlásit";
+	}
+
+	@Override
+	public String lookingForUpdates() {
+		return "Zjišťuji aktualizace";
+	}
+
+	@Override
+	public String cantContinueNatives() {
+		return "Nelze pokračovat - chybí knihovny";
+	}
+
+	@Override
+	public String downloadingNatives() {
+		return "Stahuji knihovny";
 	}
 
 }

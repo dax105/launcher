@@ -5,8 +5,6 @@ import java.util.Locale;
 public class LocalizationHelper {
 	public static ILocalization getBestLocalization() {
 		Locale l = Locale.getDefault();
-		
-		System.out.println("Locale " + l.getCountry());
 		switch(l.getCountry()) {
 		case "CZ":
 		case "SK":

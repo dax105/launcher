@@ -1,6 +1,5 @@
 package com.jboudny.launcher;
 
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.PointerType;
@@ -17,15 +16,41 @@ import java.util.logging.Logger;
  */
 public class OSUtils {
 
-	//~ Enumerations ---------------------------------------------------------------------------------------------------
+	// ~ Enumerations
+	// ---------------------------------------------------------------------------------------------------
 
-	public enum Platform {WIN32, WIN64, MAC32, MAC64, LINUX32, LINUX64, UNKNOWN32, UNKNOWN64;
+	public enum Platform {
+		WIN32, WIN64, MAC32, MAC64, LINUX32, LINUX64, UNKNOWN32, UNKNOWN64;
 	}
 
-	//~ Methods --------------------------------------------------------------------------------------------------------
+	// ~ Methods
+	// --------------------------------------------------------------------------------------------------------
+
+	public static boolean deleteDirectory(File directory) {
+	    if(directory.exists()){
+	        File[] files = directory.listFiles();
+	        if(null!=files){
+	            for(int i=0; i<files.length; i++) {
+	                if(files[i].isDirectory()) {
+	                    deleteDirectory(files[i]);
+	                }
+	                else {
+	                    files[i].delete();
+	                }
+	            }
+	        }
+	    }
+	    return(directory.delete());
+	}
+	
+	public static int getFreeRam() {
+		return (int) ((Runtime.getRuntime().maxMemory() - (Runtime.getRuntime()
+				.totalMemory() - Runtime.getRuntime().freeMemory())) / 1000000);
+	}
 
 	public static String getJVMPath() {
-		return System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+		return System.getProperty("java.home") + File.separator + "bin"
+				+ File.separator + "java";
 	}
 
 	public static Platform getPlatform() {
@@ -74,30 +99,33 @@ public class OSUtils {
 		String folder = "." + File.separator;
 
 		if (isMac()) {
-			folder = System.getProperty("user.home") + File.separator + "Library" + File.separator
-					 + "Application Support";
+			folder = System.getProperty("user.home") + File.separator
+					+ "Library" + File.separator + "Application Support";
 		} else if (isWindows()) {
 
 			Map<String, Object> options = new HashMap<>();
 			options.put(Library.OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE);
-			options.put(Library.OPTION_FUNCTION_MAPPER, W32APIFunctionMapper.UNICODE);
+			options.put(Library.OPTION_FUNCTION_MAPPER,
+					W32APIFunctionMapper.UNICODE);
 
-			HWND hwndOwner   = null;
-			int nFolder		 = Shell32.CSIDL_LOCAL_APPDATA;
-			HANDLE hToken    = null;
-			int dwFlags		 = Shell32.SHGFP_TYPE_CURRENT;
-			char pszPath[]   = new char[Shell32.MAX_PATH];
-			Shell32 instance = (Shell32) Native.loadLibrary("shell32", Shell32.class, options);
-			int hResult		 = instance.SHGetFolderPath(hwndOwner, nFolder, hToken, dwFlags, pszPath);
+			HWND hwndOwner = null;
+			int nFolder = Shell32.CSIDL_LOCAL_APPDATA;
+			HANDLE hToken = null;
+			int dwFlags = Shell32.SHGFP_TYPE_CURRENT;
+			char pszPath[] = new char[Shell32.MAX_PATH];
+			Shell32 instance = (Shell32) Native.loadLibrary("shell32",
+					Shell32.class, options);
+			int hResult = instance.SHGetFolderPath(hwndOwner, nFolder, hToken,
+					dwFlags, pszPath);
 			if (Shell32.S_OK == hResult) {
 
 				String path = new String(pszPath);
-				int len     = path.indexOf('\0');
-				folder	    = path.substring(0, len);
+				int len = path.indexOf('\0');
+				folder = path.substring(0, len);
 			} else {
 				System.err.println("Error: " + hResult);
 			}
-		} else if(isLinux()) {
+		} else if (isLinux()) {
 			folder = System.getProperty("user.home");
 		}
 
@@ -106,16 +134,17 @@ public class OSUtils {
 		return folder;
 	}
 
-	//~ Inner Interfaces -----------------------------------------------------------------------------------------------
+	// ~ Inner Interfaces
+	// -----------------------------------------------------------------------------------------------
 
 	private static interface Shell32 extends Library {
 
-		public static final int MAX_PATH									  = 260;
-		public static final int CSIDL_LOCAL_APPDATA							  = 0x001c;
-		public static final int SHGFP_TYPE_CURRENT							  = 0;
+		public static final int MAX_PATH = 260;
+		public static final int CSIDL_LOCAL_APPDATA = 0x001c;
+		public static final int SHGFP_TYPE_CURRENT = 0;
 		@SuppressWarnings("unused")
-		public static final int SHGFP_TYPE_DEFAULT							  = 1;
-		public static final int S_OK										  = 0;
+		public static final int SHGFP_TYPE_DEFAULT = 1;
+		public static final int S_OK = 0;
 
 		/**
 		 * see http://msdn.microsoft.com/en-us/library/bb762181(VS.85).aspx
@@ -123,13 +152,16 @@ public class OSUtils {
 		 * HRESULT SHGetFolderPath( HWND hwndOwner, int nFolder, HANDLE hToken,
 		 * DWORD dwFlags, LPTSTR pszPath);
 		 */
-		public int SHGetFolderPath(final HWND hwndOwner, final int nFolder, final HANDLE hToken, final int dwFlags,
-								   final char pszPath[]);
+		public int SHGetFolderPath(final HWND hwndOwner, final int nFolder,
+				final HANDLE hToken, final int dwFlags, final char pszPath[]);
 	}
 
-	//~ Inner Classes --------------------------------------------------------------------------------------------------
+	// ~ Inner Classes
+	// --------------------------------------------------------------------------------------------------
 
-	private static class HANDLE extends PointerType {}
+	private static class HANDLE extends PointerType {
+	}
 
-	private static class HWND extends HANDLE {}
+	private static class HWND extends HANDLE {
+	}
 }

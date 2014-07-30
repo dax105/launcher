@@ -154,9 +154,29 @@ public class EnLocalization implements ILocalization {
 	public String loginButton() {
 		return "Login";
 	}
+	
+	@Override
+	public String errorDownloadingNatives() {
+		return "Error while downloading natives";
+	}
 
 	@Override
 	public String applicationVersion(Version version) {
 		return "Game version is " + version;
+	}
+
+	@Override
+	public String lookingForUpdates() {
+		return "Looking for updates...";
+	}
+
+	@Override
+	public String cantContinueNatives() {
+		return "Can't continue - natives can't be downloaded";
+	}
+
+	@Override
+	public String downloadingNatives() {
+		return "Downloading natives";
 	}
 }

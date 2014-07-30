@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 
 import com.jboudny.launcher.Launcher;
+import com.jboudny.launcher.localization.LocalizationHelper;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = -6724401659166549898L;
@@ -47,6 +48,10 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
+	public LogoPanel getLogoPanel() {
+		return this.lp;
+	}
+	
 	public void initControls() {
 		this.progressBar = new JProgressBar(0, 100);
 		this.progressBar.setStringPainted(true);
@@ -62,7 +67,7 @@ public class MainFrame extends JFrame {
 		this.add(lp, BorderLayout.CENTER);
 		this.add(this.progressBar, BorderLayout.SOUTH);
 		
-		this.progressBar.setString("Looking for updates...");
+		this.progressBar.setString(LocalizationHelper.getBestLocalization().lookingForUpdates());
 		this.progressBar.setIndeterminate(true);
 	}
 

@@ -17,8 +17,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
+import net.lingala.zip4j.exception.ZipException;
+
 import com.jboudny.launcher.Authentication.AuthStatus;
 import com.jboudny.launcher.gui.DebugFrame;
+import com.jboudny.launcher.gui.LogoPanelLogin;
 import com.jboudny.launcher.gui.MainFrame;
 import com.jboudny.launcher.localization.*;
 
@@ -73,6 +76,7 @@ public class Launcher implements Runnable {
 				Launcher.APP_VERSION_FILE_NAME));
 
 		this.doUpdating();
+		this.checkNatives();
 
 		if (saved)this.doLoginAndRun(config.username, config.password);
 	}
@@ -111,6 +115,35 @@ public class Launcher implements Runnable {
 			return au.getToken();
 		default:
 			return null;
+		}
+	}
+	
+	public void checkNatives() {
+		File natDir = new File(this.programFolder, "natives");
+		if (!(natDir.exists() && natDir.isDirectory())) {
+			this.mainFrame.setBarText(this.local.downloadingNatives());
+			
+			NativesDownloader down = new NativesDownloader(natDir,
+					config.server);
+			if (down.downloadNatives(this.mainFrame.getProgressBar())) {
+				try {
+					down.unpackNatives();
+				} catch (ZipException e) {
+					e.printStackTrace();
+					
+					if (this.mainFrame.getLogoPanel() instanceof LogoPanelLogin) {
+						((LogoPanelLogin) this.mainFrame.getLogoPanel())
+								.setButtonEnabled(false);
+						this.mainFrame.setBarText(this.local.cantContinueNatives());
+					}
+				}
+			} else {
+				if (this.mainFrame.getLogoPanel() instanceof LogoPanelLogin) {
+					((LogoPanelLogin) this.mainFrame.getLogoPanel())
+							.setButtonEnabled(false);
+					this.mainFrame.setBarText(this.local.cantContinueNatives());
+				}
+			}
 		}
 	}
 	
@@ -398,19 +431,16 @@ public class Launcher implements Runnable {
 		this.debugFrame.setVisible(true);
 
 		try {
-			runCommand(
-					"java -jar "
-							+ new File(this.programFolder, "app.jar").getAbsolutePath()
-							+ " " + jarParams, new IProcessExitCallback() {
+			runJar(new File(this.programFolder, "app.jar").getAbsolutePath(),
+					jarParams, new IProcessExitCallback() {
 
 						@Override
 						public void onExit(int exitCode) {
 							if (exitCode == 0) {
-								System.out
-										.println(local.normalProcessEnd());
+								System.out.println(local.normalProcessEnd());
 							} else {
-								System.out
-										.println(local.errorProcessEnd(exitCode));
+								System.out.println(local
+										.errorProcessEnd(exitCode));
 							}
 						}
 
@@ -421,13 +451,19 @@ public class Launcher implements Runnable {
 		}
 	}
 
-	public void runCommand(String cmd, IProcessExitCallback onExit)
+	public void runJar(String jarFile, String jarParams, IProcessExitCallback onExit)
 			throws IOException {
-		Process proc = Runtime.getRuntime().exec(cmd, null, this.programFolder);
+		//TODO: Download natives
+		JarLauncher l = new JarLauncher(jarFile);
+		l.setMinMemory(OSUtils.getFreeRam() / 4);
+		l.setMaxMemory(OSUtils.getFreeRam() / 2);
+		l.setNativesDir("natives");
+		l.setAppArgs(jarParams);
+		
+		Process proc = l.runJar(this.programFolder);
 		
 
-		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc,
-				onExit);
+		StreamGobbler iS = new StreamGobbler(proc.getInputStream(), proc, onExit);
 		StreamGobbler eS = new StreamGobbler(proc.getErrorStream(), proc, null);
 
 		iS.start();
@@ -465,8 +501,11 @@ class StreamGobbler extends Thread {
 
 			p.destroy();
 
-			if (callback != null)
+			if (callback != null) {
+				while(p.isAlive()) {;}
 				callback.onExit(p.exitValue());
+			}
+			
 			br.close();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
