@@ -10,8 +10,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-
 public class Config {
 
 	public static final String DEFAULT_SERVER = "http://ondryasondra.aspone.cz/";
@@ -122,8 +120,7 @@ public class Config {
 	private String decodePassword(String pwd) {
 		try {
 			return PassEncrypting.decrypt(pwd);
-		} catch (Base64DecodingException | UnsupportedEncodingException
-				| GeneralSecurityException e) {
+		} catch (UnsupportedEncodingException | GeneralSecurityException e) {
 			Logger.getGlobal().warning("Error in decoding password!");
 			return pwd;
 		}
