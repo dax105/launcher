@@ -502,7 +502,7 @@ class StreamGobbler extends Thread {
 			p.destroy();
 
 			if (callback != null) {
-				while(p.isAlive()) {;}
+				while(OSUtils.isProcessRunning(p)) {;}
 				callback.onExit(p.exitValue());
 			}
 			

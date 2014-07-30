@@ -26,6 +26,15 @@ public class OSUtils {
 	// ~ Methods
 	// --------------------------------------------------------------------------------------------------------
 
+	public static boolean isProcessRunning(Process p) {
+		try {
+	        p.exitValue();
+	        return false;
+	    } catch (Exception e) {
+	        return true;
+	    }
+	}
+	
 	public static boolean deleteDirectory(File directory) {
 	    if(directory.exists()){
 	        File[] files = directory.listFiles();
