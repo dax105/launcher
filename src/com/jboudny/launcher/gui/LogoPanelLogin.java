@@ -153,6 +153,16 @@ public class LogoPanelLogin extends LogoPanel {
 	}
 	
 	@Override
+	public void disableControls() {
+		this.loginButton.setEnabled(false);
+	}
+	
+	@Override
+	public void enableControls() {
+		this.loginButton.setEnabled(true);
+	}
+	
+	@Override
 	public void onPaint(Graphics2D g) {
 		super.onPaint(g);
 		

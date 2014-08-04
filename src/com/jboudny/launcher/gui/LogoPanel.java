@@ -78,6 +78,12 @@ public class LogoPanel extends JPanel {
 		return 1 - v;
 	}
 	
+	public void disableControls() {
+	}
+	
+	public void enableControls() {
+	}
+	
 	@Override
 	public void paint(Graphics gd) {
 		super.paint(gd);

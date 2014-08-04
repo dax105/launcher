@@ -57,7 +57,15 @@ public class MainFrame extends JFrame {
 		return this.lp;
 	}
 	
+	public void setControlsEnabled(boolean enabled) {
+		if(enabled)
+			lp.enableControls();
+		else
+			lp.disableControls();
+	}
+	
 	public void initControls() {
+		this.setControlsEnabled(false);
 		this.progressBar = new JProgressBar(0, 100);
 		this.progressBar.setStringPainted(true);
 		this.progressBar.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1,

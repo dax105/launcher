@@ -38,6 +38,9 @@ public class Launcher implements Runnable {
 
 	private File programFolder = new File(
 			OSUtils.userDataFolder(DIRECTORY_NAME));
+	private File appFile = new File(programFolder, "app.jar");
+	private File appVersionFile = new File(programFolder, APP_VERSION_FILE_NAME);
+	
 	private String appverurl;
 	private String launchverurl;
 	private Config config;
@@ -72,8 +75,7 @@ public class Launcher implements Runnable {
 		this.checkLauncher();
 		this.startGui(saved);
 
-		appVersion = getVersion(new File(programFolder,
-				Launcher.APP_VERSION_FILE_NAME));
+		appVersion = getVersion(this.appVersionFile);
 
 		this.doUpdating();
 		this.checkNatives();
@@ -172,12 +174,15 @@ public class Launcher implements Runnable {
 
 			sa.close();
 			sl.close();
+			
+			this.mainFrame.setControlsEnabled(true);
 
 			try {
 				boolean updated = false;
 
 				if (verlaunch.isNewerThan(version)) {
 					updated = true;
+					this.mainFrame.setControlsEnabled(false);
 					this.mainFrame.setProgressBarText(this.local
 							.downloadingLatestLauncher(verlaunch));
 
@@ -210,17 +215,21 @@ public class Launcher implements Runnable {
 
 						}
 					}
+					
+					this.mainFrame.setControlsEnabled(true);
 
 				}
 
-				if (verapp.isNewerThan(appVersion)) {
+				if (verapp.isNewerThan(appVersion) || !this.appFile.exists()) {
 					updated = true;
+					this.mainFrame.setControlsEnabled(false);
 					this.mainFrame.setProgressBarText(this.local
 							.downloadingLatestApp(verapp));
-					update(config.server + "latestapp.jar", new File(
-							programFolder, "app.jar"), verapp, new File(
+					update(config.server + "latestapp.jar", this.appFile, verapp, new File(
 							programFolder, Launcher.APP_VERSION_FILE_NAME),
 							this.mainFrame.getProgressBar(), false);
+					
+					this.mainFrame.setControlsEnabled(true);
 				}
 
 				this.mainFrame.getProgressBar().setMaximum(100);
@@ -290,8 +299,7 @@ public class Launcher implements Runnable {
 	}
 
 	public void startGui(boolean justLogo) {
-		Launcher.appVersion = getVersion(new File(programFolder,
-				Launcher.APP_VERSION_FILE_NAME));
+		Launcher.appVersion = getVersion(this.appVersionFile);
 
 		this.mainFrame = new MainFrame();
 		this.mainFrame.useLoginPanel(!justLogo, this);
