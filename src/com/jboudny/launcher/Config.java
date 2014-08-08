@@ -106,8 +106,7 @@ public class Config {
 			}
 		}
 	}
-	
-	//TODO: basic password encrypting
+
 	private String encodePassword(String pwd) {
 		try {
 			return PassEncrypting.encrypt(pwd);

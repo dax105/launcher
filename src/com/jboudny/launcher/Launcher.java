@@ -27,7 +27,7 @@ import com.jboudny.launcher.localization.*;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(1, 5, 2);
+	public static Version version = new Version(1, 5, 3);
 	public static Version appVersion;
 	public static String APP_NAME = "Order of the Stone";
 
@@ -466,7 +466,6 @@ public class Launcher implements Runnable {
 
 	public void runJar(String jarFile, String jarParams,
 			IProcessExitCallback onExit) throws IOException {
-		// TODO: Download natives
 		JarLauncher l = new JarLauncher(jarFile);
 		l.setMinMemory(OSUtils.getFreeRam() / 4);
 		l.setMaxMemory(OSUtils.getFreeRam() / 2);

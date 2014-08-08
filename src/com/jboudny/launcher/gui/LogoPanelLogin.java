@@ -22,7 +22,6 @@ import javax.swing.plaf.basic.BasicPasswordFieldUI;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 
 import com.jboudny.launcher.Launcher;
-import com.jboudny.launcher.localization.*;
 
 public class LogoPanelLogin extends LogoPanel {
 
@@ -78,11 +77,11 @@ public class LogoPanelLogin extends LogoPanel {
 				
 				if (checkBox.isSelected()) {
 					launcher.getConfig().username = username.getText();
-					launcher.getConfig().password = password.getText();
+					launcher.getConfig().password = new String(password.getPassword());
 					launcher.getConfig().save(true);
 				}
 				
-				if (!launcher.doLoginAndRun(username.getText(), password.getText())) {
+				if (!launcher.doLoginAndRun(username.getText(),new String(password.getPassword()))) {
 					loginButton.setText("Login");
 					loginButton.setEnabled(true);
 					
@@ -165,9 +164,7 @@ public class LogoPanelLogin extends LogoPanel {
 	@Override
 	public void onPaint(Graphics2D g) {
 		super.onPaint(g);
-		
-		//TODO Status info
-		
+		//TODO: Status
 	}
 
 }
