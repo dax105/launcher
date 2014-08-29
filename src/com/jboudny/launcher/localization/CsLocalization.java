@@ -4,19 +4,7 @@ import java.io.File;
 
 import com.jboudny.launcher.Version;
 
-public class CsLocalization implements ILocalization {
-
-	private static CsLocalization instance = null;
-	public static CsLocalization getLocalization() {
-		if(instance == null)
-			instance = new CsLocalization();
-		
-		return instance;
-	}
-	
-	protected CsLocalization() {
-		
-	}
+public class CsLocalization extends EnLocalization {
 	
 	@Override
 	public String launcherVersion(Version version) {
