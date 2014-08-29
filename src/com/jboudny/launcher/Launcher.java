@@ -27,7 +27,7 @@ import com.jboudny.launcher.localization.*;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(1, 5, 4);
+	public static Version version = new Version(1, 6, 0);
 	public static Version appVersion;
 	public static String APP_NAME = "Order of the Stone";
 
@@ -50,6 +50,10 @@ public class Launcher implements Runnable {
 
 	private boolean saved;
 
+	public boolean isSaved() {
+		return saved;
+	}
+
 	private ILocalization local;
 
 	public Config getConfig() {
@@ -69,24 +73,23 @@ public class Launcher implements Runnable {
 		appverurl = config.server + "appversion.txt";
 		launchverurl = config.server + "launcherversion.txt";
 
-		//this.saved = config.hasSavedCredentials();
-		this.saved = false;
+		this.saved = config.hasSavedCredentials();
+		//this.saved = false;
 
 		this.checkDirectory();
 		this.checkLauncher();
-		this.startGui(saved);
+		this.startGui(this.saved);
 
 		appVersion = getVersion(this.appVersionFile);
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		this.doUpdating();
 		this.checkNatives();
-
-		if (saved) {
-			boolean r = this.doLoginAndRun(config.username, config.password);
-			if(saved && !r) {
-				this.mainFrame.useLoginPanel(true, this);
-			}
-		}
 	}
 
 	public boolean doLoginAndRun(String username, String password) {
@@ -299,19 +302,13 @@ public class Launcher implements Runnable {
 		}
 	}
 
-	public void startGui(boolean justLogo) {
+	public void startGui(boolean saved) {
 		Launcher.appVersion = getVersion(this.appVersionFile);
-
+		
 		this.mainFrame = new MainFrame();
-		this.mainFrame.useLoginPanel(!justLogo, this);
+		this.mainFrame.useLoginPanel(this, saved ? this.config.username : null, saved ? this.config.password : null);
 		this.mainFrame.initControls();
 		this.mainFrame.setVisible(true);
-
-		try {
-			Thread.sleep(1000); // Wait for the splash animation to finish :P
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void update(String url, File f, Version newVersion,

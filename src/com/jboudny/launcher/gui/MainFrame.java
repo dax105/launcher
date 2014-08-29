@@ -37,15 +37,8 @@ public class MainFrame extends JFrame {
 		this.setLayout(bl);
 	}
 	
-	public void useLoginPanel(boolean use, Launcher launcher) {
-		if(use) {
-			if(this.lp != null)
-				this.remove(lp);
-			
-			this.lp = new LogoPanelLogin(launcher);
-		} else {
-			this.lp = new LogoPanel();
-		}
+	public void useLoginPanel(Launcher launcher, String user, String password) {
+		this.lp = new LogoPanelLogin(launcher, user, password);
 		
 		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 		this.add(lp, BorderLayout.CENTER);

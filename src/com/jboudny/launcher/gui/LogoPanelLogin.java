@@ -22,6 +22,7 @@ import javax.swing.plaf.basic.BasicPasswordFieldUI;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 
 import com.jboudny.launcher.Launcher;
+import com.jboudny.launcher.localization.LocalizationHelper;
 
 public class LogoPanelLogin extends LogoPanel {
 
@@ -32,7 +33,7 @@ public class LogoPanelLogin extends LogoPanel {
 	private final JCheckBox checkBox;
 	private final JLabel loginText;
 	
-	public LogoPanelLogin(final Launcher launcher) {
+	public LogoPanelLogin(final Launcher launcher, String savedUser, String savedPwd) {
 		super();
 		this.login = true;
 		
@@ -44,15 +45,16 @@ public class LogoPanelLogin extends LogoPanel {
 		UIManager.put("Button.select", Color.GRAY);
 		
 		GridBagConstraints c = new GridBagConstraints();
-		
 		this.username = new JTextField(20);
+		this.username.setText(savedUser);
 		new GhostText(username, " " + this.local.userName());
 		
 		this.password = new JPasswordField(20);
+		this.password.setText(savedPwd);
 		new GhostText(password, " " + this.local.password());
 		
 		this.loginButton = new JButton(this.local.loginButton());
-		this.checkBox = new JCheckBox(this.local.rememberCredentials(), false);
+		this.checkBox = new JCheckBox(this.local.rememberCredentials(), launcher.isSaved());
 		
 		final GridBagLayout layout = new GridBagLayout();
 		
@@ -71,23 +73,26 @@ public class LogoPanelLogin extends LogoPanel {
 				username.setEnabled(false);
 				password.setEnabled(false);
 				checkBox.setEnabled(false);
-				
-				
+							
 				paint(getGraphics());
 				
-				if (checkBox.isSelected()) {
-					launcher.getConfig().username = username.getText();
-					launcher.getConfig().password = new String(password.getPassword());
-					launcher.getConfig().save(true);
-				}
-				
 				if (!launcher.doLoginAndRun(username.getText(),new String(password.getPassword()))) {
-					loginButton.setText("Login");
+					loginButton.setText(LocalizationHelper.getBestLocalization().loginButton());
 					loginButton.setEnabled(true);
 					
 					username.setEnabled(true);
 					password.setEnabled(true);
 					checkBox.setEnabled(true);
+				} else {
+					if (checkBox.isSelected()) {
+						launcher.getConfig().username = username.getText();
+						launcher.getConfig().password = new String(password.getPassword());
+						launcher.getConfig().save(true);
+					} else {
+						launcher.getConfig().username = "";
+						launcher.getConfig().password = "";
+						launcher.getConfig().save(false);
+					}
 				}
 				
 			}
