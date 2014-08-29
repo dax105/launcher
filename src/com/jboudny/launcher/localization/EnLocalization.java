@@ -5,14 +5,6 @@ import java.io.File;
 import com.jboudny.launcher.Version;
 
 public class EnLocalization implements ILocalization {
-
-	private static EnLocalization instance = null;
-	public static EnLocalization getLocalization() {
-		if(instance == null)
-			instance = new EnLocalization();
-		
-		return instance;
-	}
 	
 	@Override
 	public String launcherVersion(Version version) {

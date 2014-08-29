@@ -3,15 +3,19 @@ package com.jboudny.launcher.localization;
 import java.util.Locale;
 
 public class LocalizationHelper {
+	private static CsLocalization cz = new CsLocalization();
+	private static EnLocalization en = new EnLocalization();
+	private static SkLocalization sk = new SkLocalization();
+	
 	public static ILocalization getBestLocalization() {
 		Locale l = Locale.getDefault();
 		switch(l.getCountry()) {
 		case "CZ":
-			return CsLocalization.getLocalization();
+			return LocalizationHelper.cz;
 		case "SK":
-			return CsLocalization.getLocalization();
+			return LocalizationHelper.sk;
 		default:
-			return EnLocalization.getLocalization();
+			return LocalizationHelper.en;
 		}
 	}
 }
