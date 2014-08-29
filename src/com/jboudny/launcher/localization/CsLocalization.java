@@ -14,7 +14,7 @@ public class CsLocalization implements ILocalization {
 		return instance;
 	}
 	
-	private CsLocalization() {
+	protected CsLocalization() {
 		
 	}
 	
@@ -35,7 +35,7 @@ public class CsLocalization implements ILocalization {
 
 	@Override
 	public String applicationName() {
-		return "Objednávka kamene";
+		return "Order of the Stone";
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public class CsLocalization implements ILocalization {
 
 	@Override
 	public String lookingForUpdates() {
-		return "Zjišťuji aktualizace";
+		return "Vyhledávám aktualizace";
 	}
 
 	@Override

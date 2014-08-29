@@ -7,6 +7,7 @@ public class LocalizationHelper {
 		Locale l = Locale.getDefault();
 		switch(l.getCountry()) {
 		case "CZ":
+			return CsLocalization.getLocalization();
 		case "SK":
 			return CsLocalization.getLocalization();
 		default:

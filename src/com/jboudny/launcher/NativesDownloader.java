@@ -100,7 +100,7 @@ public class NativesDownloader {
 					pb.setValue(val);
 
 				}
-				pb.setIndeterminate(true);
+				//pb.setIndeterminate(true);
 
 				in.close();
 				fos.close();
