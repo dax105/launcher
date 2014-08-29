@@ -69,7 +69,8 @@ public class Launcher implements Runnable {
 		appverurl = config.server + "appversion.txt";
 		launchverurl = config.server + "launcherversion.txt";
 
-		this.saved = config.hasSavedCredentials();
+		//this.saved = config.hasSavedCredentials();
+		this.saved = false;
 
 		this.checkDirectory();
 		this.checkLauncher();

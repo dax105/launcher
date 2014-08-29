@@ -75,12 +75,12 @@ public class CsLocalization implements ILocalization {
 
 	@Override
 	public String noUpdatesStarting() {
-		return "Aktualizace nenalezeny";
+		return "Aktualizace nenalezeny, čekání na přihlášení...";
 	}
 
 	@Override
 	public String updatesDoneStarting() {
-		return "Aktualizováno";
+		return "Aktualizováno, čekání na přihlášení...";
 	}
 
 	@Override
@@ -180,7 +180,7 @@ public class CsLocalization implements ILocalization {
 
 	@Override
 	public String downloadingNatives() {
-		return "Stahuji knihovny";
+		return "Stahování knihoven...";
 	}
 
 }

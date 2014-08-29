@@ -51,6 +51,8 @@ public class NativesDownloader {
 			result = download(macNativesUrl, downloadedFile, progress);
 		}
 		
+		progress.setString(LocalizationHelper.getBestLocalization().updatesDoneStarting());
+		
 		return result;
 	}
 	

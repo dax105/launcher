@@ -177,6 +177,6 @@ public class EnLocalization implements ILocalization {
 
 	@Override
 	public String downloadingNatives() {
-		return "Downloading natives";
+		return "Downloading natives...";
 	}
 }
