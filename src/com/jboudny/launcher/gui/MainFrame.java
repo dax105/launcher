@@ -40,7 +40,7 @@ public class MainFrame extends JFrame {
 	public void useLoginPanel(Launcher launcher, String user, String password) {
 		this.lp = new LogoPanelLogin(launcher, user, password);
 		
-		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
+		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, Color.BLACK));
 		this.add(lp, BorderLayout.CENTER);
 		this.invalidate();
 		this.repaint();
@@ -61,8 +61,7 @@ public class MainFrame extends JFrame {
 		this.setControlsEnabled(false);
 		this.progressBar = new JProgressBar(0, 100);
 		this.progressBar.setStringPainted(true);
-		this.progressBar.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1,
-				Color.BLACK));
+		this.progressBar.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.BLACK));
 		this.progressBar.setUI(new BasicProgressBarUI());
 		this.progressBar.setValue(0);
 		this.progressBar.setFont(lp.infoFont);	

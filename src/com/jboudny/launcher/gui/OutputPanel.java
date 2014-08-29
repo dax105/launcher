@@ -9,6 +9,11 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.ScrollBarUI;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.plaf.basic.BasicScrollPaneUI;
 import javax.swing.plaf.basic.BasicTextAreaUI;
 import javax.swing.text.DefaultCaret;
@@ -23,7 +28,7 @@ public class OutputPanel extends JPanel {
 	public JTextArea getTextArea() {
 		return this.textArea;
 	}
-	
+
 	public OutputPanel() {
 		setLayout(new BorderLayout());
 		textArea.setEditable(false);
@@ -39,14 +44,31 @@ public class OutputPanel extends JPanel {
 		int fontSize = currentFont.getSize() - 2;
 
 		textArea.setFont(new Font(fontName, fontStyle, fontSize));
-		
-		JScrollPane jsp = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		
+
+		JScrollPane jsp = null;
+
+		try {
+			LookAndFeel previousLF = UIManager.getLookAndFeel();
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			jsp = new JScrollPane(textArea,
+					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			UIManager.setLookAndFeel(previousLF);
+		} catch(ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch(InstantiationException e) {
+			e.printStackTrace();
+		} catch(IllegalAccessException e) {
+			e.printStackTrace();
+		} catch(UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
 		jsp.setUI(new BasicScrollPaneUI());
 		jsp.setBorder(BorderFactory.createEmptyBorder());
 		jsp.setBackground(Color.WHITE);
 		jsp.setForeground(Color.BLACK);
-		
+
 		add(jsp);
 		System.setOut(new PrintStream(taOutputStream));
 		System.setErr(new PrintStream(taOutputStream));
