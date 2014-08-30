@@ -27,7 +27,7 @@ import com.jboudny.launcher.localization.*;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(1, 7, 0);
+	public static Version version = new Version(1, 7, 1);
 	public static Version appVersion;
 	public static String APP_NAME = "Order of the Stone";
 
@@ -132,6 +132,9 @@ public class Launcher implements Runnable {
 	public void checkNatives() {
 		File natDir = new File(this.programFolder, "natives");
 		if (!(natDir.exists() && natDir.isDirectory())) {
+			
+			this.mainFrame.setControlsEnabled(false);
+			
 			this.mainFrame.setBarText(this.local.downloadingNatives());
 
 			NativesDownloader down = new NativesDownloader(natDir,
@@ -139,6 +142,7 @@ public class Launcher implements Runnable {
 			if (down.downloadNatives(this.mainFrame.getProgressBar())) {
 				try {
 					down.unpackNatives();
+					this.mainFrame.setControlsEnabled(true);
 				} catch (ZipException e) {
 					e.printStackTrace();
 
@@ -156,6 +160,7 @@ public class Launcher implements Runnable {
 					this.mainFrame.setBarText(this.local.cantContinueNatives());
 				}
 			}
+			
 		}
 	}
 
@@ -232,6 +237,10 @@ public class Launcher implements Runnable {
 					update(config.server + "latestapp.jar", this.appFile, verapp, new File(
 							programFolder, Launcher.APP_VERSION_FILE_NAME),
 							this.mainFrame.getProgressBar(), false);
+					
+					Launcher.appVersion = verapp;
+					
+					this.mainFrame.repaint();
 					
 					this.mainFrame.setControlsEnabled(true);
 				}
