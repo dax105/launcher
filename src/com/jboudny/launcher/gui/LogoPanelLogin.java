@@ -1,5 +1,6 @@
 package com.jboudny.launcher.gui;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,13 +8,18 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Line2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -33,9 +39,13 @@ public class LogoPanelLogin extends LogoPanel {
 	private final JCheckBox checkBox;
 	private final JLabel loginText;
 	
-	public LogoPanelLogin(final Launcher launcher, String savedUser, String savedPwd) {
+	private MainFrame frame;
+	
+	public LogoPanelLogin(final Launcher launcher, String savedUser, String savedPwd, MainFrame frame) {
 		super();
 		this.login = true;
+		
+		this.frame = frame;
 		
 		UIManager.put("CheckBox.focus", new Color(0,0,0,0));
 		UIManager.put("CheckBox.select", Color.GRAY);
@@ -166,10 +176,47 @@ public class LogoPanelLogin extends LogoPanel {
 		this.loginButton.setEnabled(true);
 	}
 	
+	public int offset = 10;
+	public int size = 8;
+	
 	@Override
 	public void onPaint(Graphics2D g) {
 		super.onPaint(g);
-		//TODO: Status
+		
+		int w = this.getWidth();
+		
+		boolean closeSelected = this.isCloseButtonSelected(this.frame.pos);
+		boolean minimizeSelected = this.isMinimizeButtonSelected(this.frame.pos);
+		
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		g.setStroke(new BasicStroke(1.4f));
+		
+		g.setColor(closeSelected ? Color.GRAY : Color.LIGHT_GRAY);
+		g.draw(new Line2D.Float(w-offset-size, offset+size-1, w-offset, offset-1));
+		g.draw(new Line2D.Float(w-offset, offset+size-1, w-offset-size, offset-1));
+		
+		g.setColor(minimizeSelected ? Color.GRAY : Color.LIGHT_GRAY);
+		g.draw(new Line2D.Float(w-offset*2-size*2, offset+size-1, w-offset*2-size, offset+size-1));
+		
+	}
+	
+	private boolean isCloseButtonSelected(Point pos) {
+		Rectangle r = new Rectangle(this.getWidth()-offset-size, offset-1, size+1, size+1);
+		return r.contains(pos);
+	}
+	
+	private boolean isMinimizeButtonSelected(Point pos) {
+		Rectangle r = new Rectangle(this.getWidth()-offset*2-size*2, offset-1, size+1, size+1);
+		return r.contains(pos);
+	}
+	
+	public void mousePress(Point pos) {
+		if(isCloseButtonSelected(pos)) {
+			System.exit(0);
+		} else if (isMinimizeButtonSelected(pos)) {
+			this.frame.setState(JFrame.ICONIFIED);
+		}
 	}
 
 }

@@ -36,7 +36,7 @@ public interface ILocalization {
 	public String noUpdatesStarting();
 	public String updatesDoneStarting();
 	public String newerLauncherSwapping();
-	public String newerLauncherDontFoundContinue();
+	public String newerLauncherNotFoundContinue();
 	
 	public String userName();
 	public String password();

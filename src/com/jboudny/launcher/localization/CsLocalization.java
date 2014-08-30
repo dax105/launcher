@@ -58,12 +58,12 @@ public class CsLocalization extends EnLocalization {
 
 	@Override
 	public String switchingToNewLauncher() {
-		return "Spouštím nejnovější verzi launcheru";
+		return "Spouštím nejnovější verzi launcheru...";
 	}
 
 	@Override
 	public String noUpdatesStarting() {
-		return "Aktualizace nenalezeny, čekání na přihlášení...";
+		return "Nové aktualizace nenalezeny, čekání na přihlášení...";
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class CsLocalization extends EnLocalization {
 	}
 
 	@Override
-	public String newerLauncherDontFoundContinue() {
+	public String newerLauncherNotFoundContinue() {
 		return "Novější launcher nenalezen";
 	}
 
@@ -148,7 +148,7 @@ public class CsLocalization extends EnLocalization {
 
 	@Override
 	public String loggingIn() {
-		return "Přihlašování";
+		return "Přihlašování...";
 	}
 	
 	@Override
@@ -158,7 +158,7 @@ public class CsLocalization extends EnLocalization {
 
 	@Override
 	public String lookingForUpdates() {
-		return "Vyhledávám aktualizace";
+		return "Vyhledávám aktualizace...";
 	}
 
 	@Override

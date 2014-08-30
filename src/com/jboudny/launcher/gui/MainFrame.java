@@ -3,6 +3,10 @@ package com.jboudny.launcher.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -17,8 +21,13 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = -6724401659166549898L;
 
 	BorderLayout bl = new BorderLayout();
-	LogoPanel lp;
+	LogoPanelLogin lp;
 	JProgressBar progressBar;
+	Point mouseDownCompCoords;
+	MainFrame frame;
+	
+	public Point pos = new Point(0, 0);
+	
 	public MainFrame() {
 		super(Launcher.APP_NAME + " launcher v" + Launcher.version);
 		
@@ -35,10 +44,42 @@ public class MainFrame extends JFrame {
 		this.setBackground(Color.WHITE);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(bl);
+		
+		frame = this;
+		
+		this.addMouseListener(new MouseListener(){
+		    public void mouseReleased(MouseEvent e) {
+		    mouseDownCompCoords = null;
+		    }
+		    public void mousePressed(MouseEvent e) {
+		    mouseDownCompCoords = e.getPoint();
+		    lp.mousePress(pos);
+		    }
+		    public void mouseExited(MouseEvent e) {
+		    }
+		    public void mouseEntered(MouseEvent e) {
+		    }
+		    public void mouseClicked(MouseEvent e) {
+		    }
+		    });
+		     
+		    this.addMouseMotionListener(new MouseMotionListener(){
+		    public void mouseMoved(MouseEvent e) {
+				pos.x = e.getX();
+				pos.y = e.getY();
+				
+				lp.repaint();
+		    }
+		     
+		    public void mouseDragged(MouseEvent e) {
+		    Point currCoords = e.getLocationOnScreen();
+		    frame.setLocation(currCoords.x - mouseDownCompCoords.x, currCoords.y - mouseDownCompCoords.y);
+		    }
+		    });
 	}
 	
 	public void useLoginPanel(Launcher launcher, String user, String password) {
-		this.lp = new LogoPanelLogin(launcher, user, password);
+		this.lp = new LogoPanelLogin(launcher, user, password, this);
 		
 		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, Color.BLACK));
 		this.add(lp, BorderLayout.CENTER);

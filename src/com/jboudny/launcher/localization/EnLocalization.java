@@ -97,7 +97,7 @@ public class EnLocalization implements ILocalization {
 	}
 
 	@Override
-	public String newerLauncherDontFoundContinue() {
+	public String newerLauncherNotFoundContinue() {
 		return "Couldn't find newer version of launcher in app folder, continuing...";
 	}
 
