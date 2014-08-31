@@ -16,6 +16,8 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -41,6 +43,8 @@ public class LogoPanelLogin extends LogoPanel {
 	
 	private MainFrame frame;
 	
+	private Icon chOn, chOff;
+	
 	public LogoPanelLogin(final Launcher launcher, String savedUser, String savedPwd, MainFrame frame) {
 		super();
 		this.login = true;
@@ -54,6 +58,9 @@ public class LogoPanelLogin extends LogoPanel {
 		UIManager.put("Button.focus", new Color(0,0,0,0));
 		UIManager.put("Button.select", Color.GRAY);
 		
+		this.chOn = new ImageIcon(LogoPanelLogin.class.getResource("checkbox_yes.png"));
+		this.chOff = new ImageIcon(LogoPanelLogin.class.getResource("checkbox_no.png"));
+	
 		GridBagConstraints c = new GridBagConstraints();
 		this.username = new JTextField(20);
 		this.username.setText(savedUser);
@@ -65,6 +72,7 @@ public class LogoPanelLogin extends LogoPanel {
 		
 		this.loginButton = new JButton(this.local.loginButton());
 		this.checkBox = new JCheckBox(this.local.rememberCredentials(), launcher.isSaved());
+		this.setChboxIcon();
 		
 		final GridBagLayout layout = new GridBagLayout();
 		
@@ -106,6 +114,15 @@ public class LogoPanelLogin extends LogoPanel {
 				}
 				
 			}
+		});
+		
+		this.checkBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setChboxIcon();
+			}
+			
 		});
 		
 		this.setLayout(new BorderLayout());
@@ -160,6 +177,14 @@ public class LogoPanelLogin extends LogoPanel {
 		username.setFocusable(false);
 		username.setFocusable(true);
 
+	}
+	
+	private void setChboxIcon() {
+		if(checkBox.isSelected()) {
+			checkBox.setIcon(chOn);
+		} else {
+			checkBox.setIcon(chOff);
+		}
 	}
 	
 	public void setButtonEnabled(boolean enable) {

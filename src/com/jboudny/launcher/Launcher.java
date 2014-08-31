@@ -27,7 +27,7 @@ import com.jboudny.launcher.localization.*;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(1, 7, 1);
+	public static Version version = new Version(1, 7, 2);
 	public static Version appVersion;
 	public static String APP_NAME = "Order of the Stone";
 
