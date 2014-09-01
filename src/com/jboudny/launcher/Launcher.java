@@ -1,5 +1,16 @@
 package com.jboudny.launcher;
 
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.geom.Line2D;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,8 +24,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 import net.lingala.zip4j.exception.ZipException;
@@ -23,11 +36,12 @@ import com.jboudny.launcher.Authentication.AuthStatus;
 import com.jboudny.launcher.gui.DebugFrame;
 import com.jboudny.launcher.gui.LogoPanelLogin;
 import com.jboudny.launcher.gui.MainFrame;
+import com.jboudny.launcher.gui.OutputPanel;
 import com.jboudny.launcher.localization.*;
 
 public class Launcher implements Runnable {
 
-	public static Version version = new Version(1, 7, 2);
+	public static Version version = new Version(1, 8, 0);
 	public static Version appVersion;
 	public static String APP_NAME = "Order of the Stone";
 
@@ -46,7 +60,8 @@ public class Launcher implements Runnable {
 	private Config config;
 
 	private MainFrame mainFrame;
-	private DebugFrame debugFrame;
+	
+	public static Font font;
 
 	private boolean saved;
 
@@ -101,12 +116,6 @@ public class Launcher implements Runnable {
 		this.config.username = username;
 		this.config.password = password;
 		this.runApp(this.mainFrame, username + " " + password + " " + token);
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 
 		return true;
 	}
@@ -440,15 +449,83 @@ public class Launcher implements Runnable {
 	}
 
 	public void runApp(JFrame frameToDispose, String jarParams) {
+		
+		//TODO DO SOMETHING
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		frameToDispose.dispose();
+		
+		frameToDispose.getContentPane().removeAll();
+		
+		JPanel p = new JPanel() {
+			private static final long serialVersionUID = 1L;
 
-		this.debugFrame = new DebugFrame();
-		this.debugFrame.setVisible(true);
+			int offset = 10;
+			int size = 8;
+			
+			@Override
+			public void paint(Graphics go) {
+				super.paint(go);
+				
+				Graphics2D g = (Graphics2D) go;
+				
+				int w = this.getWidth();
+				
+				boolean closeSelected = this.isCloseButtonSelected(mainFrame.pos);
+				boolean minimizeSelected = this.isMinimizeButtonSelected(mainFrame.pos);
+				
+				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				
+				Font f = font;
+				
+				g.setFont(f);
+				
+				int posX = (w-g.getFontMetrics().stringWidth("Debug output"))/2;
+				
+				g.drawString("Debug output", posX, g.getFontMetrics().getHeight()*1.2f);
+				
+				g.setStroke(new BasicStroke(1.4f));
+				
+				g.setColor(closeSelected ? Color.GRAY : Color.LIGHT_GRAY);
+				g.draw(new Line2D.Float(w-offset-size, offset+size-1, w-offset, offset-1));
+				g.draw(new Line2D.Float(w-offset, offset+size-1, w-offset-size, offset-1));
+				
+				g.setColor(minimizeSelected ? Color.GRAY : Color.LIGHT_GRAY);
+				g.draw(new Line2D.Float(w-offset*2-size*2, offset+size-1, w-offset*2-size, offset+size-1));
+				
+			}
+			
+			private boolean isCloseButtonSelected(Point pos) {
+				Rectangle r = new Rectangle(this.getWidth()-offset-size, offset-1, size+1, size+1);
+				return r.contains(pos);
+			}
+			
+			private boolean isMinimizeButtonSelected(Point pos) {
+				Rectangle r = new Rectangle(this.getWidth()-offset*2-size*2, offset-1, size+1, size+1);
+				return r.contains(pos);
+			}
+			
+		};
+		p.setBackground(new Color(240,240,240));
+		
+		OutputPanel outPanel = new OutputPanel();
+		outPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.BLACK));
+		
+		p.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, Color.BLACK));
+		
+		frameToDispose.add(outPanel);
+		frameToDispose.add(p, BorderLayout.NORTH);
+		
+		p.setSize(600, 30);
+		p.setPreferredSize(new Dimension(600, 26));
+		
+		frameToDispose.revalidate();
+		frameToDispose.repaint();
+
+		//this.debugFrame = new DebugFrame();
+		//this.debugFrame.setVisible(true);
 
 		try {
 			runJar(new File(this.programFolder, "app.jar").getAbsolutePath(),
@@ -469,6 +546,7 @@ public class Launcher implements Runnable {
 		} catch (IOException e) {
 			System.err.println(e);
 		}
+		
 	}
 
 	public void runJar(String jarFile, String jarParams,

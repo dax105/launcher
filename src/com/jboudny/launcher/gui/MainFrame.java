@@ -68,7 +68,7 @@ public class MainFrame extends JFrame {
 				pos.x = e.getX();
 				pos.y = e.getY();
 				
-				lp.repaint();
+				frame.repaint();
 		    }
 		     
 		    public void mouseDragged(MouseEvent e) {
@@ -83,7 +83,6 @@ public class MainFrame extends JFrame {
 		
 		lp.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, Color.BLACK));
 		this.add(lp, BorderLayout.CENTER);
-		this.invalidate();
 		this.repaint();
 	}
 	

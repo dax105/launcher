@@ -18,6 +18,8 @@ import javax.swing.plaf.basic.BasicScrollPaneUI;
 import javax.swing.plaf.basic.BasicTextAreaUI;
 import javax.swing.text.DefaultCaret;
 
+import com.jboudny.launcher.Launcher;
+
 public class OutputPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -38,12 +40,8 @@ public class OutputPanel extends JPanel {
 		textArea.setBackground(Color.WHITE);
 		textArea.setForeground(Color.BLACK);
 
-		Font currentFont = textArea.getFont();
-		String fontName = currentFont.getFontName();
-		int fontStyle = currentFont.getStyle();
-		int fontSize = currentFont.getSize() - 2;
 
-		textArea.setFont(new Font(fontName, fontStyle, fontSize));
+		textArea.setFont(Launcher.font.deriveFont(Font.PLAIN, 10));
 
 		JScrollPane jsp = null;
 

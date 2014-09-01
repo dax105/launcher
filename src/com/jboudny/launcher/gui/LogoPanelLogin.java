@@ -91,27 +91,35 @@ public class LogoPanelLogin extends LogoPanel {
 				username.setEnabled(false);
 				password.setEnabled(false);
 				checkBox.setEnabled(false);
-							
-				paint(getGraphics());
 				
-				if (!launcher.doLoginAndRun(username.getText(),new String(password.getPassword()))) {
-					loginButton.setText(LocalizationHelper.getBestLocalization().loginButton());
-					loginButton.setEnabled(true);
-					
-					username.setEnabled(true);
-					password.setEnabled(true);
-					checkBox.setEnabled(true);
-				} else {
-					if (checkBox.isSelected()) {
-						launcher.getConfig().username = username.getText();
-						launcher.getConfig().password = new String(password.getPassword());
-						launcher.getConfig().save(true);
-					} else {
-						launcher.getConfig().username = "";
-						launcher.getConfig().password = "";
-						launcher.getConfig().save(false);
+				Runnable runnable = new Runnable() {
+
+					@Override
+					public void run() {
+						if (!launcher.doLoginAndRun(username.getText(),new String(password.getPassword()))) {
+							loginButton.setText(LocalizationHelper.getBestLocalization().loginButton());
+							loginButton.setEnabled(true);
+							
+							username.setEnabled(true);
+							password.setEnabled(true);
+							checkBox.setEnabled(true);
+						} else {
+							if (checkBox.isSelected()) {
+								launcher.getConfig().username = username.getText();
+								launcher.getConfig().password = new String(password.getPassword());
+								launcher.getConfig().save(true);
+							} else {
+								launcher.getConfig().username = "";
+								launcher.getConfig().password = "";
+								launcher.getConfig().save(false);
+							}
+						}
 					}
-				}
+					
+				};
+				
+				Thread t = new Thread(runnable);
+				t.start();
 				
 			}
 		});

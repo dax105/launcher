@@ -44,6 +44,8 @@ public class LogoPanel extends JPanel {
 
 		logoFont = logoFont.deriveFont(62f);
 		infoFont = logoFont.deriveFont(12f);
+		
+		Launcher.font = infoFont;
 
 		float timeSec = 0.8f;
 		float steptime = timeSec / (float) steps;
