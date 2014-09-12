@@ -41,7 +41,7 @@ public class JarLauncher {
 		cmdB.append(' ');
 		cmdB.append(this.getArgsString(this.vmArgs.values()));
 		cmdB.append("-jar ");
-		cmdB.append(this.jarPath);
+		cmdB.append("\"" + this.jarPath + "\"");
 		cmdB.append(' ');
 		cmdB.append(this.appArgs);
 		

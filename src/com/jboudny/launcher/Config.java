@@ -17,6 +17,7 @@ public class Config {
 	public String server = DEFAULT_SERVER;
 	public String username = "";
 	public String password = "";
+	public String forcelang = "";
 
 	private File configFile = null;
 	private boolean savedCredentials = false;
@@ -74,6 +75,10 @@ public class Config {
 			if (!server.equals(DEFAULT_SERVER)) {
 				pw.println("server " + server);
 			}
+			
+			if(!forcelang.equals("")) {
+				pw.println("forcelang " + forcelang);
+			}
 
 			pw.close();
 		} catch (FileNotFoundException e) {
@@ -100,6 +105,9 @@ public class Config {
 			case "password":
 				this.password = this.decodePassword(words[1]);
 				break;
+			case "forcelang":
+				this.forcelang = words[1];
+				break;		
 			default:
 				System.out.println("Invalid setting \"" + s + "\"");
 				break;

@@ -57,7 +57,8 @@ public class Launcher implements Runnable {
 	
 	private String appverurl;
 	private String launchverurl;
-	private Config config;
+	
+	public Config config;
 
 	private MainFrame mainFrame;
 	
@@ -77,14 +78,17 @@ public class Launcher implements Runnable {
 
 	@Override
 	public void run() {
+		this.config = new Config(new File(programFolder,
+				Launcher.CONFIGURATION_FILE_NAME));
+		
+		//I really need to clean this up
+		LocalizationHelper.setForcelang(config.forcelang);
 		this.local = LocalizationHelper.getBestLocalization();
 		Launcher.APP_NAME = this.local.applicationName();
 
 		System.out.println(this.local.launcherVersion(version));
 		System.out.println(this.local.launcherFolder(programFolder));
 
-		this.config = new Config(new File(programFolder,
-				Launcher.CONFIGURATION_FILE_NAME));
 		appverurl = config.server + "appversion.txt";
 		launchverurl = config.server + "launcherversion.txt";
 
@@ -123,7 +127,7 @@ public class Launcher implements Runnable {
 	private String authenticate(String username, String password) {
 		Authentication au = new Authentication();
 		AuthStatus res = au.authenticate(username, password);
-
+		
 		switch (res) {
 		case ERROR_BAD:
 			JOptionPane.showMessageDialog(mainFrame, this.local.badLogin());
@@ -552,8 +556,8 @@ public class Launcher implements Runnable {
 	public void runJar(String jarFile, String jarParams,
 			IProcessExitCallback onExit) throws IOException {
 		JarLauncher l = new JarLauncher(jarFile);
-		l.setMinMemory(OSUtils.getFreeRam() / 4);
-		l.setMaxMemory(OSUtils.getFreeRam() / 2);
+		l.setMinMemory(512);
+		l.setMaxMemory(1024);
 		l.setNativesDir("natives");
 		l.setAppArgs(jarParams);
 
