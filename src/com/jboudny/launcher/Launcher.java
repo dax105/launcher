@@ -33,7 +33,6 @@ import javax.swing.JProgressBar;
 import net.lingala.zip4j.exception.ZipException;
 
 import com.jboudny.launcher.Authentication.AuthStatus;
-import com.jboudny.launcher.gui.DebugFrame;
 import com.jboudny.launcher.gui.LogoPanelLogin;
 import com.jboudny.launcher.gui.MainFrame;
 import com.jboudny.launcher.gui.OutputPanel;
@@ -54,14 +53,14 @@ public class Launcher implements Runnable {
 			OSUtils.userDataFolder(DIRECTORY_NAME));
 	private File appFile = new File(programFolder, "app.jar");
 	private File appVersionFile = new File(programFolder, APP_VERSION_FILE_NAME);
-	
+
 	private String appverurl;
 	private String launchverurl;
-	
+
 	public Config config;
 
 	private MainFrame mainFrame;
-	
+
 	public static Font font;
 
 	private boolean saved;
@@ -80,8 +79,8 @@ public class Launcher implements Runnable {
 	public void run() {
 		this.config = new Config(new File(programFolder,
 				Launcher.CONFIGURATION_FILE_NAME));
-		
-		//I really need to clean this up
+
+		// I really need to clean this up
 		LocalizationHelper.setForcelang(config.forcelang);
 		this.local = LocalizationHelper.getBestLocalization();
 		Launcher.APP_NAME = this.local.applicationName();
@@ -93,17 +92,17 @@ public class Launcher implements Runnable {
 		launchverurl = config.server + "launcherversion.txt";
 
 		this.saved = config.hasSavedCredentials();
-		//this.saved = false;
+		// this.saved = false;
 
 		this.checkDirectory();
 		this.checkLauncher();
 		this.startGui(this.saved);
 
 		appVersion = getVersion(this.appVersionFile);
-		
+
 		try {
 			Thread.sleep(1000);
-		} catch (InterruptedException e) {
+		} catch(InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -114,7 +113,7 @@ public class Launcher implements Runnable {
 	public boolean doLoginAndRun(String username, String password) {
 		String token = this.authenticate(username, password);
 
-		if (token == null)
+		if(token == null)
 			return false;
 
 		this.config.username = username;
@@ -127,8 +126,8 @@ public class Launcher implements Runnable {
 	private String authenticate(String username, String password) {
 		Authentication au = new Authentication();
 		AuthStatus res = au.authenticate(username, password);
-		
-		switch (res) {
+
+		switch (res){
 		case ERROR_BAD:
 			JOptionPane.showMessageDialog(mainFrame, this.local.badLogin());
 			return null;
@@ -144,22 +143,22 @@ public class Launcher implements Runnable {
 
 	public void checkNatives() {
 		File natDir = new File(this.programFolder, "natives");
-		if (!(natDir.exists() && natDir.isDirectory())) {
-			
+		if(!(natDir.exists() && natDir.isDirectory())) {
+
 			this.mainFrame.setControlsEnabled(false);
-			
+
 			this.mainFrame.setBarText(this.local.downloadingNatives());
 
 			NativesDownloader down = new NativesDownloader(natDir,
 					config.server);
-			if (down.downloadNatives(this.mainFrame.getProgressBar())) {
+			if(down.downloadNatives(this.mainFrame.getProgressBar())) {
 				try {
 					down.unpackNatives();
 					this.mainFrame.setControlsEnabled(true);
-				} catch (ZipException e) {
+				} catch(ZipException e) {
 					e.printStackTrace();
 
-					if (this.mainFrame.getLogoPanel() instanceof LogoPanelLogin) {
+					if(this.mainFrame.getLogoPanel() instanceof LogoPanelLogin) {
 						((LogoPanelLogin) this.mainFrame.getLogoPanel())
 								.setButtonEnabled(false);
 						this.mainFrame.setBarText(this.local
@@ -167,13 +166,13 @@ public class Launcher implements Runnable {
 					}
 				}
 			} else {
-				if (this.mainFrame.getLogoPanel() instanceof LogoPanelLogin) {
+				if(this.mainFrame.getLogoPanel() instanceof LogoPanelLogin) {
 					((LogoPanelLogin) this.mainFrame.getLogoPanel())
 							.setButtonEnabled(false);
 					this.mainFrame.setBarText(this.local.cantContinueNatives());
 				}
 			}
-			
+
 		}
 	}
 
@@ -196,13 +195,13 @@ public class Launcher implements Runnable {
 
 			sa.close();
 			sl.close();
-			
+
 			this.mainFrame.setControlsEnabled(true);
 
 			try {
 				boolean updated = false;
 
-				if (verlaunch.isNewerThan(version)) {
+				if(verlaunch.isNewerThan(version)) {
 					updated = true;
 					this.mainFrame.setControlsEnabled(false);
 					this.mainFrame.setProgressBarText(this.local
@@ -217,12 +216,12 @@ public class Launcher implements Runnable {
 					Version li = getVersion(new File(programFolder,
 							Launcher.LAUNCHER_VERSION_FILE_NAME));
 
-					if (li != null && li.isNewerThan(version)) {
+					if(li != null && li.isNewerThan(version)) {
 
 						File launcher = new File(programFolder, "launcher" + li
 								+ ".jar");
 
-						if (launcher.exists()) {
+						if(launcher.exists()) {
 							System.out.println(this.local
 									.switchingToNewLauncher());
 
@@ -230,61 +229,62 @@ public class Launcher implements Runnable {
 								Runtime.getRuntime().exec(
 										"java -jar "
 												+ launcher.getAbsolutePath());
-							} catch (IOException e) {
+							} catch(IOException e) {
 								e.printStackTrace();
 							}
 							System.exit(0);
 
 						}
 					}
-					
+
 					this.mainFrame.setControlsEnabled(true);
 
 				}
 
-				if (verapp.isNewerThan(appVersion) || !this.appFile.exists()) {
+				if(verapp.isNewerThan(appVersion) || !this.appFile.exists()) {
 					updated = true;
 					this.mainFrame.setControlsEnabled(false);
 					this.mainFrame.setProgressBarText(this.local
 							.downloadingLatestApp(verapp));
-					update(config.server + "latestapp.jar", this.appFile, verapp, new File(
-							programFolder, Launcher.APP_VERSION_FILE_NAME),
+					update(config.server + "latestapp.jar", this.appFile,
+							verapp, new File(programFolder,
+									Launcher.APP_VERSION_FILE_NAME),
 							this.mainFrame.getProgressBar(), false);
-					
+
 					Launcher.appVersion = verapp;
-					
+
 					this.mainFrame.repaint();
-					
+
 					this.mainFrame.setControlsEnabled(true);
 				}
 
 				this.mainFrame.getProgressBar().setMaximum(100);
 
-				if (!updated) {
+				if(!updated) {
 					this.mainFrame.setBarText(this.local.noUpdatesStarting());
 				} else {
 					this.mainFrame.setBarText(this.local.updatesDoneStarting());
 				}
 
-			} catch (Exception e) {
+			} catch(Exception e) {
 				this.mainFrame
 						.setBarText(this.local.errorDownloadingStarting());
 				e.printStackTrace();
 			}
 
-		} catch (Exception ex) {
+		} catch(Exception ex) {
 			this.mainFrame.setBarText(this.local.errorUpdatingStarting());
 			ex.printStackTrace();
 		}
 	}
 
 	public void checkDirectory() {
-		if (!programFolder.exists()) {
+		if(!programFolder.exists()) {
 			System.out.println(this.local.directoryNotFound());
 			try {
 				programFolder.mkdir();
 				System.out.println(this.local.directoryCreated());
-			} catch (SecurityException se) {
+			} catch(SecurityException se) {
 				System.out.println(this.local.errorCreatingDirectory());
 				System.exit(0);
 			}
@@ -295,18 +295,18 @@ public class Launcher implements Runnable {
 		Version li = getVersion(new File(programFolder,
 				Launcher.LAUNCHER_VERSION_FILE_NAME));
 		File rf = new File(System.getProperty("user.dir"));
-		if (!rf.equals(programFolder)) {
-			if (li != null && li.isNewerThan(version)) {
+		if(!rf.equals(programFolder)) {
+			if(li != null && li.isNewerThan(version)) {
 				File launcher = new File(programFolder, "launcher" + li
 						+ ".jar");
 
-				if (launcher.exists()) {
+				if(launcher.exists()) {
 					System.out.println(this.local.newerLauncherSwapping());
 
 					try {
 						Runtime.getRuntime().exec(
 								"java -jar " + launcher.getAbsolutePath());
-					} catch (IOException e) {
+					} catch(IOException e) {
 						e.printStackTrace();
 					}
 
@@ -326,9 +326,10 @@ public class Launcher implements Runnable {
 
 	public void startGui(boolean saved) {
 		Launcher.appVersion = getVersion(this.appVersionFile);
-		
+
 		this.mainFrame = new MainFrame();
-		this.mainFrame.useLoginPanel(this, saved ? this.config.username : null, saved ? this.config.password : null);
+		this.mainFrame.useLoginPanel(this, saved ? this.config.username : null,
+				saved ? this.config.password : null);
 		this.mainFrame.initControls();
 		this.mainFrame.setVisible(true);
 	}
@@ -345,11 +346,11 @@ public class Launcher implements Runnable {
 
 			int contentLength = -1;
 
-			if (connection.getResponseCode() / 100 == 2) {
+			if(connection.getResponseCode() / 100 == 2) {
 				contentLength = connection.getContentLength();
 			}
 
-			if (contentLength <= 0) {
+			if(contentLength <= 0) {
 				pb.setIndeterminate(true);
 			} else {
 				pb.setIndeterminate(false);
@@ -358,13 +359,13 @@ public class Launcher implements Runnable {
 
 			FileOutputStream fos = null;
 
-			if (!isLauncher) {
+			if(!isLauncher) {
 				fos = new FileOutputStream(new File(f.getAbsolutePath() + "z"));
 			} else {
 
 				String fname = f.getAbsolutePath();
 				int pos = fname.lastIndexOf(".");
-				if (pos > 0) {
+				if(pos > 0) {
 					fname = fname.substring(0, pos);
 				}
 
@@ -382,7 +383,7 @@ public class Launcher implements Runnable {
 
 				final byte data[] = new byte[1024];
 				int count;
-				while ((count = in.read(data, 0, 1024)) != -1) {
+				while((count = in.read(data, 0, 1024)) != -1) {
 					fos.write(data, 0, count);
 					fos.flush();
 					val += 1024;
@@ -393,25 +394,25 @@ public class Launcher implements Runnable {
 
 				in.close();
 				fos.close();
-			} catch (Exception e) {
+			} catch(Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, e.getStackTrace(),
 						"Exception during update: " + e,
 						JOptionPane.ERROR_MESSAGE);
 			}
 
-			if (f.exists() && !isLauncher) {
+			if(f.exists() && !isLauncher) {
 				f.delete();
 			}
 
-			if (!isLauncher) {
+			if(!isLauncher) {
 				new File(f.getAbsolutePath() + "z").renameTo(f
 						.getAbsoluteFile());
 			}
 
 			setVersion(versionFile, newVersion);
 
-		} catch (Exception e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 			throw new Exception(this.local.errorDownloading());
 		}
@@ -427,19 +428,19 @@ public class Launcher implements Runnable {
 
 			try {
 				return Version.parseVersion(ln);
-			} catch (Exception e) {
+			} catch(Exception e) {
 				e.printStackTrace();
 				return new Version(-1, -1, -1);
 			}
 
-		} catch (FileNotFoundException e) {
+		} catch(FileNotFoundException e) {
 			return null;
 		}
 
 	}
 
 	public void setVersion(File file, Version version) {
-		if (file.exists()) {
+		if(file.exists()) {
 			file.delete();
 		}
 
@@ -447,89 +448,99 @@ public class Launcher implements Runnable {
 			PrintWriter pw = new PrintWriter(file);
 			pw.println(version);
 			pw.close();
-		} catch (Exception e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void runApp(JFrame frameToDispose, String jarParams) {
-		
-		//TODO DO SOMETHING
+
+		// TODO DO SOMETHING
 		try {
 			Thread.sleep(100);
-		} catch (InterruptedException e) {
+		} catch(InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		frameToDispose.getContentPane().removeAll();
-		
+
 		JPanel p = new JPanel() {
 			private static final long serialVersionUID = 1L;
 
 			int offset = 10;
 			int size = 8;
-			
+
 			@Override
 			public void paint(Graphics go) {
 				super.paint(go);
-				
+
 				Graphics2D g = (Graphics2D) go;
-				
+
 				int w = this.getWidth();
-				
-				boolean closeSelected = this.isCloseButtonSelected(mainFrame.pos);
-				boolean minimizeSelected = this.isMinimizeButtonSelected(mainFrame.pos);
-				
-				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				
+
+				boolean closeSelected = this
+						.isCloseButtonSelected(mainFrame.pos);
+				boolean minimizeSelected = this
+						.isMinimizeButtonSelected(mainFrame.pos);
+
+				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+						RenderingHints.VALUE_ANTIALIAS_ON);
+
 				Font f = font;
-				
+
 				g.setFont(f);
-				
-				int posX = (w-g.getFontMetrics().stringWidth("Debug output"))/2;
-				
-				g.drawString("Debug output", posX, g.getFontMetrics().getHeight()*1.2f);
-				
+
+				int posX = (w - g.getFontMetrics().stringWidth("Debug output")) / 2;
+
+				g.drawString("Debug output", posX, g.getFontMetrics()
+						.getHeight() * 1.2f);
+
 				g.setStroke(new BasicStroke(1.4f));
-				
+
 				g.setColor(closeSelected ? Color.GRAY : Color.LIGHT_GRAY);
-				g.draw(new Line2D.Float(w-offset-size, offset+size-1, w-offset, offset-1));
-				g.draw(new Line2D.Float(w-offset, offset+size-1, w-offset-size, offset-1));
-				
+				g.draw(new Line2D.Float(w - offset - size, offset + size - 1, w
+						- offset, offset - 1));
+				g.draw(new Line2D.Float(w - offset, offset + size - 1, w
+						- offset - size, offset - 1));
+
 				g.setColor(minimizeSelected ? Color.GRAY : Color.LIGHT_GRAY);
-				g.draw(new Line2D.Float(w-offset*2-size*2, offset+size-1, w-offset*2-size, offset+size-1));
-				
+				g.draw(new Line2D.Float(w - offset * 2 - size * 2, offset
+						+ size - 1, w - offset * 2 - size, offset + size - 1));
+
 			}
-			
+
 			private boolean isCloseButtonSelected(Point pos) {
-				Rectangle r = new Rectangle(this.getWidth()-offset-size, offset-1, size+1, size+1);
+				Rectangle r = new Rectangle(this.getWidth() - offset - size,
+						offset - 1, size + 1, size + 1);
 				return r.contains(pos);
 			}
-			
+
 			private boolean isMinimizeButtonSelected(Point pos) {
-				Rectangle r = new Rectangle(this.getWidth()-offset*2-size*2, offset-1, size+1, size+1);
+				Rectangle r = new Rectangle(this.getWidth() - offset * 2 - size
+						* 2, offset - 1, size + 1, size + 1);
 				return r.contains(pos);
 			}
-			
+
 		};
-		p.setBackground(new Color(240,240,240));
-		
+		p.setBackground(new Color(240, 240, 240));
+
 		OutputPanel outPanel = new OutputPanel();
-		outPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.BLACK));
-		
+		outPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1,
+				Color.BLACK));
+
 		p.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, Color.BLACK));
-		
+
 		frameToDispose.add(outPanel);
 		frameToDispose.add(p, BorderLayout.NORTH);
-		
+
 		p.setSize(600, 30);
 		p.setPreferredSize(new Dimension(600, 26));
-		
+
 		frameToDispose.revalidate();
 		frameToDispose.repaint();
 
-		//this.debugFrame = new DebugFrame();
-		//this.debugFrame.setVisible(true);
+		// this.debugFrame = new DebugFrame();
+		// this.debugFrame.setVisible(true);
 
 		try {
 			runJar(new File(this.programFolder, "app.jar").getAbsolutePath(),
@@ -537,7 +548,7 @@ public class Launcher implements Runnable {
 
 						@Override
 						public void onExit(int exitCode) {
-							if (exitCode == 0) {
+							if(exitCode == 0) {
 								System.out.println(local.normalProcessEnd());
 							} else {
 								System.out.println(local
@@ -547,17 +558,28 @@ public class Launcher implements Runnable {
 
 					});
 
-		} catch (IOException e) {
+		} catch(IOException e) {
 			System.err.println(e);
 		}
-		
+
 	}
 
 	public void runJar(String jarFile, String jarParams,
 			IProcessExitCallback onExit) throws IOException {
 		JarLauncher l = new JarLauncher(jarFile);
-		l.setMinMemory(512);
-		l.setMaxMemory(1024);
+
+		if(this.config.startMemory >= 32) {
+			l.setMinMemory(this.config.startMemory);
+		} else {
+			l.setMinMemory(OSUtils.getFreeRam() / 4);
+		}
+
+		if(this.config.maxMemory >= 96) {
+			l.setMaxMemory(this.config.maxMemory);
+		} else {
+			l.setMaxMemory(OSUtils.getFreeRam() / 2);
+		}
+
 		l.setNativesDir("natives");
 		l.setAppArgs(jarParams);
 
@@ -597,20 +619,20 @@ class StreamGobbler extends Thread {
 			InputStreamReader isr = new InputStreamReader(is);
 			BufferedReader br = new BufferedReader(isr);
 			String line = null;
-			while ((line = br.readLine()) != null)
+			while((line = br.readLine()) != null)
 				System.out.println(line);
 
 			p.destroy();
 
-			if (callback != null) {
-				while (OSUtils.isProcessRunning(p)) {
+			if(callback != null) {
+				while(OSUtils.isProcessRunning(p)) {
 					;
 				}
 				callback.onExit(p.exitValue());
 			}
 
 			br.close();
-		} catch (IOException ioe) {
+		} catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
 	}

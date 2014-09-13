@@ -12,8 +12,6 @@ import javax.swing.JTextArea;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.ScrollBarUI;
-import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.plaf.basic.BasicScrollPaneUI;
 import javax.swing.plaf.basic.BasicTextAreaUI;
 import javax.swing.text.DefaultCaret;

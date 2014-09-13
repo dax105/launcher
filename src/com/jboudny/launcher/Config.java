@@ -18,6 +18,8 @@ public class Config {
 	public String username = "";
 	public String password = "";
 	public String forcelang = "";
+	public int startMemory = 0;
+	public int maxMemory = 0;
 
 	private File configFile = null;
 	private boolean savedCredentials = false;
@@ -72,12 +74,20 @@ public class Config {
 				pw.println("password " + this.encodePassword(password));
 			}
 
-			if (!server.equals(DEFAULT_SERVER)) {
+			if (!this.server.equals(DEFAULT_SERVER)) {
 				pw.println("server " + server);
 			}
 			
-			if(!forcelang.equals("")) {
+			if(!this.forcelang.equals("")) {
 				pw.println("forcelang " + forcelang);
+			}
+			
+			if(this.maxMemory >= 96) {
+				pw.println("maxmem " + this.maxMemory);
+			}
+			
+			if(this.startMemory >= 32) {
+				pw.println("alcmem " + this.startMemory);
 			}
 
 			pw.close();
@@ -108,6 +118,12 @@ public class Config {
 			case "forcelang":
 				this.forcelang = words[1];
 				break;		
+			case "maxmem":
+				this.maxMemory = Integer.parseInt(words[1]);
+				break;
+			case "alcmem":
+				this.startMemory = Integer.parseInt(words[1]);
+				break;
 			default:
 				System.out.println("Invalid setting \"" + s + "\"");
 				break;

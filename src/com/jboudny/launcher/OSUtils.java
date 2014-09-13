@@ -3,11 +3,19 @@ package com.jboudny.launcher;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.PointerType;
+import com.sun.jna.Structure;
+import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.win32.W32APIFunctionMapper;
 import com.sun.jna.win32.W32APITypeMapper;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -53,8 +61,59 @@ public class OSUtils {
 	}
 	
 	public static int getFreeRam() {
-		return (int) ((Runtime.getRuntime().maxMemory() - (Runtime.getRuntime()
-				.totalMemory() - Runtime.getRuntime().freeMemory())) / 1000000);
+        Platform p = OSUtils.getPlatform();
+        
+        if(p == Platform.WIN32 || p == Platform.WIN64) {
+        	return OSUtils.getFreeRamWindows();
+        } else if(p == Platform.LINUX32 || p == Platform.LINUX64) {
+        	return OSUtils.getFreeRamLinux();
+        }
+        
+		return 1024;
+	}
+	
+	private static int getFreeRamWindows() {
+		int mb = 1024 * 1024; 
+		 
+		MEMORYSTATUSEX mse = new MEMORYSTATUSEX();
+		Kernel32.INSTANCE.GlobalMemoryStatusEx(mse);
+		mse.read();
+		
+		/*System.out.println("-----------------------------");
+		System.out.println("AEV " + mse.ullAvailExtendedVirtual / mb);
+		System.out.println("APF " + mse.ullAvailPageFile / mb);
+		System.out.println("AP " + mse.ullAvailPhys / mb);
+		System.out.println("AV " + mse.ullAvailVirtual / mb);
+		System.out.println("TPF " + mse.ullTotalPageFile / mb);
+		System.out.println("TP " + mse.ullTotalPhys / mb);
+		System.out.println("TV " + mse.ullTotalVirtual / mb);
+		System.out.println("-----------------------------");*/
+		
+		return (int)(mse.ullAvailPhys / mb);
+	}
+	
+	private static int getFreeRamLinux() {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("/proc/meminfo"));
+
+			String ln;
+			while ((ln = br.readLine()) != null) {
+				String[] parts = ln.split("\\s+");
+				
+				if(parts[0].trim().toLowerCase().startsWith("memfree")) {
+					br.close();
+					return (Integer.parseInt(parts[1].trim().substring(0, parts[1].trim().indexOf(' '))) / 1024);
+				}
+			}
+
+			br.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return 1024;
 	}
 
 	public static String getJVMPath() {
@@ -164,6 +223,42 @@ public class OSUtils {
 		public int SHGetFolderPath(final HWND hwndOwner, final int nFolder,
 				final HANDLE hToken, final int dwFlags, final char pszPath[]);
 	}
+	
+    public interface Kernel32 extends StdCallLibrary {
+        boolean GlobalMemoryStatusEx(MEMORYSTATUSEX p);
+
+        Kernel32 INSTANCE = (Kernel32)Native.loadLibrary("kernel32",Kernel32.class);
+    }
+
+    public static final class MEMORYSTATUSEX extends Structure {
+    	
+        public int dwLength = size();
+        public int dwMemoryLoad;
+        public long ullTotalPhys;
+        public long ullAvailPhys;
+        public long ullTotalPageFile;
+        public long ullAvailPageFile;
+        public long ullTotalVirtual;
+        public long ullAvailVirtual;
+        public long ullAvailExtendedVirtual;
+        
+		@SuppressWarnings("rawtypes")
+		@Override
+		protected List getFieldOrder() {
+			ArrayList<String> names = new ArrayList<String>();
+			names.add("dwLength");
+    		names.add("dwMemoryLoad");
+    		names.add("ullTotalPhys");
+    		names.add("ullAvailPhys");
+    		names.add("ullTotalPageFile");
+    		names.add("ullAvailPageFile");
+    		names.add("ullTotalVirtual");
+    		names.add("ullAvailVirtual");
+    		names.add("ullAvailExtendedVirtual");
+    		
+			return names;
+		}
+    }
 
 	// ~ Inner Classes
 	// --------------------------------------------------------------------------------------------------
