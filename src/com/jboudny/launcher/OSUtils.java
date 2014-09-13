@@ -63,9 +63,11 @@ public class OSUtils {
 	public static int getFreeRam() {
         Platform p = OSUtils.getPlatform();
         
-        if(p == Platform.WIN32 || p == Platform.WIN64) {
+        if(p == Platform.WIN64) {
         	return OSUtils.getFreeRamWindows();
-        } else if(p == Platform.LINUX32 || p == Platform.LINUX64) {
+        } else if(p == Platform.WIN32 || p == Platform.LINUX32) {
+        	return 1024;
+        } else if(p == Platform.LINUX64) {
         	return OSUtils.getFreeRamLinux();
         }
         
